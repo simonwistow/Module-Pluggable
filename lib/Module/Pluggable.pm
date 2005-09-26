@@ -13,7 +13,7 @@ use Carp qw(croak);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '0.7';
+$VERSION = '0.8';
 
 =pod
 
@@ -122,7 +122,7 @@ but it can be whatever you want. Whatever arguments are passed to 'plugins'
 will be passed to the method.
 
 The default is 'undef' i.e just return the class name.
-	
+    
 
 =head1 FUTURE PLANS
 
@@ -161,10 +161,13 @@ sub import {
     # the default name for the method is 'plugins'
     my $sub = $opts{'sub_name'} || 'plugins';
 
+    # get our package 
+    my ($pkg) = caller;
+
     # have to turn off refs which makes me feel dirty but hey ho
     no strict 'refs';
     # export the subroutine
-    *$sub = sub {
+    *{"$pkg\::$sub"} = sub {
         my $self = shift;
 
         # default search path is '<Module>/<Name>/Plugin'
@@ -211,7 +214,7 @@ sub import {
 
         # are we instantiating?
         if (defined $opts{'instantiate'}) {
-			my $method = $opts{'instantiate'};
+            my $method = $opts{'instantiate'};
             return map {
                             # use string based eval to force bareword require
                             eval "require $_"; 
