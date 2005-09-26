@@ -1,0 +1,109 @@
+NAME
+    Module::Pluggable - automatically give your module the ability to have
+    plugins
+
+SYNOPSIS
+    Simple use Module::Pluggable as a base -
+
+        package MyClass;
+        use Module::Pluggable;
+        use base qw(Module::Pluggable);
+    
+    and then later ...
+
+        use MyClass;
+        my $mc = MyClass->new();
+        # returns the names of all plugins installed under MyClass::Plugins::*
+        my @plugins = $mc->plugins(); 
+
+    Alternatively, if you don't want to use 'plugins' as the method ...
+
+        package MyClass;
+        use Module::Pluggable (sub_name => 'foo');
+        use base qw(Module::Pluggable);
+
+    and then later ...
+
+        my @plugins = $mc->foo();
+
+    Or if you want to look in another directory
+
+        package MyClass;
+        use Module::Pluggable (search_path => ['Acme/MyClass/Plugin', 'MyClass/Extend']);
+        use base qw(Module::Pluggable);
+
+    Or if you want to instantiate each plugin rather than just return the
+    name
+
+        package MyClass;
+        use Module::Pluggable (instantiate => 'new');
+        use base qw(Module::Pluggable);
+
+    and then
+
+        # whatever is passed to 'plugins' will be passed 
+        # to 'new' for each plugin 
+        my @plugins = $mc->plugins(@options); 
+
+DESCRIPTION
+    Provides a simple but, hopefully, extensible way of having 'plugins' for
+    your module. Obviously this isn't going to be the be all and end all of
+    solutions but it works for me.
+
+    Essentially all it does is export a method into your namespace that
+    looks through a search path for .pm files and turn those into class
+    names.
+
+    Optionally it instantiates those classes for you.
+
+OPTIONS
+    You can pass a hash of options when importing this module.
+
+    The options can be ...
+
+  sub_name
+    The name of the subroutine to create in your namespace.
+
+    By default this is 'plugins'
+
+  search_path
+    An array ref of paths to look in. Whilst attempts have been made provide
+    cross platform-ness when looking for plugins you'll have to take care of
+    the search paths yourself.
+
+    See the test files for examples on how to do this.
+
+    But something like this should work
+
+        use File::Spec::Functions qw(catdir);
+        # search in Some/Path/To/Plugins but in a cross platform way
+        use Module::Pluggable (search_path => [catdir(qw(Some Path To Plugins))]);
+
+  instantiate
+    Call this method on the class. In general this will probably be 'new'
+    but it can be whatever you want. Whatever arguments are passed to
+    'plugins' will be passed to the method.
+
+    The default is 'undef' i.e just return the class name.
+
+FUTURE PLANS
+    This does everything I need and I can't really think fo any other
+    features I want to add. Finding multiple packages in one .pm file is
+    probably too hard and AFAICS it should 'just work'[tm] with PAR.
+
+    However suggestions (and patches) are welcome.
+
+AUTHOR
+    Simon Wistow <simon@thegestalt.org>
+
+COPYING
+    Copyright, 2003 Simon Wistow
+
+    Distributed under the same terms as Perl itself.
+
+BUGS
+    None known.
+
+SEE ALSO
+    File::Spec, File::Find::Rule, File::Basename, Class::Factory::Util
+

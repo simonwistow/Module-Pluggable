@@ -1,7 +1,10 @@
+Build.PL
 INSTALL
 MANIFEST			This list of files
 META.yml
 Makefile.PL
+Module-Pluggable-0.5.tar
+README
 lib/Module/Pluggable.pm
 t/01use.t
 t/02works.t
