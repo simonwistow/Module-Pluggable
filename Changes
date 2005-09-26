@@ -1,5 +1,9 @@
-2005-07-30 - 2.96 
-    Patch from Alex Vandiver to sort ::ISA::CACHE issues
+2005-09-01 - 2.96 
+    Patch from Alex Vandiver to sort an edge case where the package 
+    stash to contain "::"
+
+2005-07-30 - 2.95
+    Patch from Alex Vandiver to sort ::ISA::CACHE issues.
     More patches from Christopher H. Laco to sort out only and except
     and to fix calling search_path( add => ... ) before plugins() 
 

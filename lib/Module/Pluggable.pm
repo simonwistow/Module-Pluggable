@@ -13,7 +13,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '2.95';
+$VERSION = '2.96';
 
 =pod
 
@@ -451,7 +451,7 @@ sub list_packages {
 
             no strict 'refs';
             my @packs;
-            for (grep !/^main::$/, grep /::$/, keys %{$pack})
+            for (grep !/^(main|)::$/, grep /::$/, keys %{$pack})
             {
                 s!::$!!;
                 my @children = list_packages($pack.$_);
