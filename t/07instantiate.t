@@ -2,7 +2,7 @@
 
 use strict;
 use lib 't/lib';
-use Test::More qw/no_plan/;
+use Test::More tests => 4;
 
 my $foo;
 ok($foo = MyTest->new());
@@ -10,7 +10,7 @@ ok($foo = MyTest->new());
 
 
 my @plugins;
-ok(@plugins = $foo->booga(nork => 'fark'));
+ok(@plugins = sort $foo->booga(nork => 'fark'));
 is(ref $plugins[0],'MyTest::Extend::Plugin::Bar');
 is($plugins[0]->nork,'fark');
 

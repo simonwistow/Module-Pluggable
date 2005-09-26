@@ -1,6 +1,17 @@
+2003-12-15 - 1.00 Add some more features
+    
+    Added the ability to require without instantiating (for Tom Insam)    
+    Prevented the names from being explicitly sorted (again, for Tom Insam)
+    Added in the ability to provide other search directorys.
+
+2003-11-27 - 0.95 Some Test::More issues
+
+    Explicitly number the tests which fixes some test more failures
+
+
 2003-10-21 - 0.9 We can rebuild you, we have the technology
     
-    Having used this in the wild some changes to amke it better.
+    Having used this in the wild some changes to make it better.
 
 
 2003-10-20 - 0.8 Fix.

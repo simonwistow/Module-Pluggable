@@ -13,7 +13,7 @@ use Carp qw(croak);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '0.9';
+$VERSION = '1.00';
 
 =pod
 
@@ -38,6 +38,21 @@ and then later ...
     my @plugins = $mc->plugins(); 
 
     
+
+=head1 DESCRIPTION
+
+Provides a simple but, hopefully, extensible way of having 'plugins' for 
+your module. Obviously this isn't going to be the be all and end all of
+solutions but it works for me.
+
+Essentially all it does is export a method into your namespace that 
+looks through a search path for .pm files and turn those into class names. 
+
+Optionally it instantiates those classes for you.
+
+=head1 ADVANCED USAGE
+
+    
 Alternatively, if you don't want to use 'plugins' as the method ...
     
     package MyClass;
@@ -49,10 +64,14 @@ and then later ...
     my @plugins = $mc->foo();
 
 
-Or if you want to look in another directory
+Or if you want to look in another namespace
 
     package MyClass;
     use Module::Pluggable (search_path => ['Acme::MyClass::Plugin', 'MyClass::Extend']);
+
+or directory 
+
+    use Module::Pluggable (search_dirs => ['mylibs/Foo']);
 
 
 Or if you want to instantiate each plugin rather than just return the name
@@ -67,18 +86,11 @@ and then
     my @plugins = $mc->plugins(@options); 
 
 
-    
+alternatively you can just require the module without instantiating it
 
-=head1 DESCRIPTION
+    package MyClass;
+    use Module::Pluggable (require => 1);
 
-Provides a simple but, hopefully, extensible way of having 'plugins' for 
-your module. Obviously this isn't going to be the be all and end all of
-solutions but it works for me.
-
-Essentially all it does is export a method into your namespace that 
-looks through a search path for .pm files and turn those into class names. 
-
-Optionally it instantiates those classes for you.
 
 
 =head1 OPTIONS
@@ -97,6 +109,10 @@ By default this is 'plugins'
 
 An array ref of namespaces to look in. 
 
+=head2 search_dirs 
+
+An array ref of directorys to look in before @INC.
+
 =head2 instantiate
 
 Call this method on the class. In general this will probably be 'new'
@@ -104,7 +120,10 @@ but it can be whatever you want. Whatever arguments are passed to 'plugins'
 will be passed to the method.
 
 The default is 'undef' i.e just return the class name.
-    
+
+=head2 require
+
+Just require the class, don't instantiate (overrides 'instantiate');
 
 =head1 FUTURE PLANS
 
@@ -152,18 +171,24 @@ sub import {
     *{"$pkg\::$sub"} = sub {
         my $self = shift;
 
+
         # default search path is '<Module>::<Name>::Plugin'
         $opts{'search_path'} = ["${pkg}::Plugin"] unless $opts{'search_path'}; 
 
         # predeclare
         my @plugins;
 
+        # check to see if we're running under test
+        my @SEARCHDIR = exists $INC{"blib.pm"} ? grep {/blib/} @INC : @INC;
+
+        unshift @SEARCHDIR, @{$opts{'search_dirs'}} if defined $opts{'search_dirs'};
+
         # go through our @INC
-        foreach my $dir (@INC) {
+        foreach my $dir (@SEARCHDIR) {
 
             # and each directory in our search path
             foreach my $searchpath (@{$opts{'search_path'}}) {
-                # create the search directory in a corss platform goodness way
+                # create the search directory in a cross platform goodness way
                 my $sp = catdir($dir, (split /::/, $searchpath));
                 # if it doesn't exist or it's not a dir then skip it
                 next unless ( -e $sp && -d $sp );
@@ -190,8 +215,8 @@ sub import {
         # probably not necessary but hey ho
         my %plugins = map { $_ => 1 } @plugins;
 
-        # are we instantiating?
-        if (defined $opts{'instantiate'}) {
+        # are we instantiating or requring?
+        if (defined $opts{'instantiate'} || $opts{'require'}) {
             my $method = $opts{'instantiate'};
             return map {
                             # use string based eval to force bareword require
@@ -199,11 +224,12 @@ sub import {
                             # and die it we can't do that 
                             croak "Couldn't instantiate $_" if $@;
                             # instantiate with the options passed into the sub
-                            $_->$method(@_); 
-                        } sort keys %plugins;
+                            # unless just requiring
+                            $_->$method(@_) unless $opts{'require'}; 
+                        } keys %plugins;
         } else { 
             # no? just return the names
-            return sort keys %plugins;
+            return keys %plugins;
         }
 
     };

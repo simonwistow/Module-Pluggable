@@ -2,14 +2,14 @@
 
 use strict;
 use lib 't/lib';
-use Test::More qw/no_plan/;
+use Test::More tests => 3;
 
 my $foo;
 ok($foo = MyTest->new());
 
 my @plugins;
 my @expected = qw(MyTest::Plugin::Bar MyTest::Plugin::Foo);
-ok(@plugins = $foo->foo);
+ok(@plugins = sort $foo->foo);
 is_deeply(\@plugins, \@expected);
 
 

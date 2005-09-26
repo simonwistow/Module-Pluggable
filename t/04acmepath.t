@@ -2,7 +2,7 @@
 
 use strict;
 use lib 't/lib';
-use Test::More qw/no_plan/;
+use Test::More tests => 3;
 
 
 my $foo;
@@ -10,7 +10,7 @@ ok($foo = MyTest->new());
 
 my @plugins;
 my @expected = qw(Acme::MyTest::Plugin::Foo);
-ok(@plugins = $foo->plugins);
+ok(@plugins = sort $foo->plugins);
 is_deeply(\@plugins, \@expected);
 
 
