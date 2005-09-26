@@ -18,7 +18,6 @@ package MyTest;
 
 use strict;
 use Module::Pluggable;
-use base qw(Module::Pluggable);
 
 
 sub new {

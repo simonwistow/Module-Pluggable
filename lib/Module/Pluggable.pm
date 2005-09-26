@@ -13,7 +13,7 @@ use Carp qw(croak);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '0.8';
+$VERSION = '0.9';
 
 =pod
 
@@ -24,18 +24,17 @@ Module::Pluggable - automatically give your module the ability to have plugins
 =head1 SYNOPSIS
 
 
-Simple use Module::Pluggable as a base -
+Simple use Module::Pluggabl -
 
     package MyClass;
     use Module::Pluggable;
-    use base qw(Module::Pluggable);
     
     
 and then later ...
 
     use MyClass;
     my $mc = MyClass->new();
-    # returns the names of all plugins installed under MyClass::Plugins::*
+    # returns the names of all plugins installed under MyClass::Plugin::*
     my @plugins = $mc->plugins(); 
 
     
@@ -43,7 +42,6 @@ Alternatively, if you don't want to use 'plugins' as the method ...
     
     package MyClass;
     use Module::Pluggable (sub_name => 'foo');
-    use base qw(Module::Pluggable);
 
 
 and then later ...
@@ -54,15 +52,13 @@ and then later ...
 Or if you want to look in another directory
 
     package MyClass;
-    use Module::Pluggable (search_path => ['Acme/MyClass/Plugin', 'MyClass/Extend']);
-    use base qw(Module::Pluggable);
+    use Module::Pluggable (search_path => ['Acme::MyClass::Plugin', 'MyClass::Extend']);
 
 
 Or if you want to instantiate each plugin rather than just return the name
 
     package MyClass;
     use Module::Pluggable (instantiate => 'new');
-    use base qw(Module::Pluggable);
 
 and then
 
@@ -99,21 +95,7 @@ By default this is 'plugins'
 
 =head2 search_path
 
-An array ref of paths to look in. Whilst attempts
-have been made provide cross platform-ness when 
-looking for plugins you'll have to take care of the 
-search paths yourself. 
-
-See the test files for examples on how to do this.
-
-But something like this should work
-
-
-    use File::Spec::Functions qw(catdir);
-    # search in Some/Path/To/Plugins but in a cross platform way
-    use Module::Pluggable (search_path => [catdir(qw(Some Path To Plugins))]);
-
-
+An array ref of namespaces to look in. 
 
 =head2 instantiate
 
@@ -170,12 +152,8 @@ sub import {
     *{"$pkg\::$sub"} = sub {
         my $self = shift;
 
-        # default search path is '<Module>/<Name>/Plugin'
-        # we use catdir to amke it cross platform
-        my $packparts = catdir((split /::/, ref $self), 'Plugin');    
-
-        # they have to take care of the corss platform stuff themselves
-        $opts{'search_path'} = [$packparts] unless $opts{'search_path'}; 
+        # default search path is '<Module>::<Name>::Plugin'
+        $opts{'search_path'} = ["${pkg}::Plugin"] unless $opts{'search_path'}; 
 
         # predeclare
         my @plugins;
@@ -186,7 +164,7 @@ sub import {
             # and each directory in our search path
             foreach my $searchpath (@{$opts{'search_path'}}) {
                 # create the search directory in a corss platform goodness way
-                my $sp = catdir($dir, $searchpath);
+                my $sp = catdir($dir, (split /::/, $searchpath));
                 # if it doesn't exist or it's not a dir then skip it
                 next unless ( -e $sp && -d $sp );
                 

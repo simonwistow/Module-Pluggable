@@ -18,7 +18,6 @@ package MyTest;
 
 use strict;
 use Module::Pluggable ( sub_name => 'foo');
-use base qw(Module::Pluggable);
 
 
 sub new {

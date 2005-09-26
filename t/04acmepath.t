@@ -17,8 +17,7 @@ is_deeply(\@plugins, \@expected);
 package MyTest;
 use File::Spec::Functions qw(catdir);
 use strict;
-use Module::Pluggable (search_path => [catdir(qw(Acme MyTest Plugin))]);
-use base qw(Module::Pluggable);
+use Module::Pluggable (search_path => ["Acme::MyTest::Plugin"]);
 
 
 sub new {

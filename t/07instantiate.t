@@ -21,8 +21,7 @@ package MyTest;
 use File::Spec::Functions qw(catdir);
 use strict;
 use lib 't/lib';
-use Module::Pluggable (search_path => [catdir(qw(MyTest Extend Plugin))], sub_name => 'booga', instantiate => 'new');
-use base qw(Module::Pluggable);
+use Module::Pluggable (search_path => ["MyTest::Extend::Plugin"], sub_name => 'booga', instantiate => 'new');
 
 
 sub new {

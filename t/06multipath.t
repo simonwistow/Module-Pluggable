@@ -20,8 +20,7 @@ package MyTest;
 use File::Spec::Functions qw(catdir);
 use strict;
 use File::Spec::Functions qw(catdir);
-use Module::Pluggable (search_path => [catdir(qw(MyTest Extend Plugin)),  catdir(qw(Acme MyTest Plugin))]);
-use base qw(Module::Pluggable);
+use Module::Pluggable (search_path => ["MyTest::Extend::Plugin", "Acme::MyTest::Plugin"]);
 
 
 sub new {
