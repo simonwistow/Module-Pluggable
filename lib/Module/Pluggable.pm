@@ -14,7 +14,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '1.6';
+$VERSION = '1.7';
 
 =pod
 
@@ -25,7 +25,7 @@ Module::Pluggable - automatically give your module the ability to have plugins
 =head1 SYNOPSIS
 
 
-Simple use Module::Pluggabl -
+Simple use Module::Pluggable -
 
     package MyClass;
     use Module::Pluggable;
@@ -126,6 +126,17 @@ The default is 'undef' i.e just return the class name.
 
 Just require the class, don't instantiate (overrides 'instantiate');
 
+=head2 only
+
+Takes an array ref containing the names of the only plugins to 
+return. Whilst this may seem perverse ... well, it is. But it also 
+makes sense. Trust me.
+
+=head2 except
+
+Similar to C<only> it takes an array ref of plugins to exclude 
+from returning. This is slightly less perverse.
+
 =head1 FUTURE PLANS
 
 This does everything I need and I can't really think fo any other 
@@ -158,10 +169,17 @@ L<File::Spec>, L<File::Find::Rule>, L<File::Basename>, L<Class::Factory::Util>
 
 sub import {
     my $class   = shift;
-    my %opts   = @_;
+    my %opts    = @_;
 
     # the default name for the method is 'plugins'
     my $sub = $opts{'sub_name'} || 'plugins';
+  
+	# exceptions
+	my $only   = $opts{only};
+    my $except = $opts{except};     
+
+    my %only   = map { $_ => 1 } @{$only}   if defined $only;
+    my %except = map { $_ => 1 } @{$except} if defined $except;
 
     # get our package 
     my ($pkg) = caller;
@@ -246,7 +264,12 @@ sub import {
 
         # remove duplicates
         # probably not necessary but hey ho
-        my %plugins = map { $_ => 1 } @plugins;
+        my %plugins;
+		for(@plugins) {
+			next if (defined $only   && !$only{$_}   );
+            next if (defined $except &&  $except{$_} );
+		 	$plugins{$_} = 1;
+		}
 
         # are we instantiating or requring?
         if (defined $opts{'instantiate'} || $opts{'require'}) {
