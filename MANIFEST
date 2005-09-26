@@ -14,9 +14,11 @@ t/05postpath.t
 t/06multipath.t
 t/07instantiate.t
 t/08nothing.t
+t/09require.t
+t/10innerpack.t
+t/11usetwice.t
 t/lib/Acme/MyTest/Plugin/Foo.pm
 t/lib/MyTest/Extend/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Foo.pm
 t/lib/MyTest/Plugin/Quux/Foo.pm
-

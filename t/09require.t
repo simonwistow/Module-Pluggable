@@ -4,19 +4,18 @@ use strict;
 use lib 't/lib';
 use Test::More tests => 2;
 
+my $t = MyTest->new();
 
-my $foo;
-ok($foo = MyTest->new());
 
-my @expected = ();
-my @plugins = sort $foo->plugins;
-is_deeply(\@plugins, \@expected);
+ok($t->plugins());
+
+ok(keys %{MyTest::Plugin::Foo::});
 
 
 package MyTest;
 use File::Spec::Functions qw(catdir);
 use strict;
-use Module::Pluggable (search_path => ["No::Such::Modules"]);
+use Module::Pluggable (require => 1);
 use base qw(Module::Pluggable);
 
 

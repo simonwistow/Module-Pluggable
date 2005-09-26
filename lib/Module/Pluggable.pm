@@ -5,7 +5,8 @@ use vars qw($VERSION);
 use File::Find::Rule qw/find/;
 use File::Basename;
 use File::Spec::Functions qw(splitdir catdir abs2rel);
-use Carp qw(croak);
+use UNIVERSAL::require;
+use Carp qw(croak carp);
 
 
 # ObQuote:
@@ -13,7 +14,7 @@ use Carp qw(croak);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '1.2';
+$VERSION = '1.4';
 
 =pod
 
@@ -157,7 +158,7 @@ L<File::Spec>, L<File::Find::Rule>, L<File::Basename>, L<Class::Factory::Util>
 
 sub import {
     my $class   = shift;
-    our %opts   = @_;
+    my %opts   = @_;
 
     # the default name for the method is 'plugins'
     my $sub = $opts{'sub_name'} || 'plugins';
@@ -181,7 +182,9 @@ sub import {
         # check to see if we're running under test
         my @SEARCHDIR = exists $INC{"blib.pm"} ? grep {/blib/} @INC : @INC;
 
+        # add any search_dir params
         unshift @SEARCHDIR, @{$opts{'search_dirs'}} if defined $opts{'search_dirs'};
+
 
         # go through our @INC
         foreach my $dir (@SEARCHDIR) {
@@ -208,9 +211,38 @@ sub import {
 
             }
         }
+        
+		# This code should allow us to have plugins which are inner packages
+		# but it's not working at the moment
 
+		# some inner packages can only be found if we use other stuff first
+		# if (defined $opts{'instantiate'} || $opts{'require'}) {
+		#	for (@plugins) {
+	    #        $_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
+		#	}
+		#}
+
+
+
+        # now add stuff that may have been in package
+        # NOTE we should probably use all the stuff we've been given already
+        # but then we can't unload it :(
+        # foreach my $searchpath (@{$opts{'search_path'}}) 
+		# {
+		#	for (list_packages("${searchpath}::")) {
+		#		s!::$!!;
+		#		if (defined $opts{'instantiate'} || $opts{'require'}) {
+	    #            $_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
+		#		}
+	    #       push @plugins, $_;
+		#	}
+        #}
+
+        
         # return blank unless we've found anything
         return () unless @plugins;
+
+
 
         # remove duplicates
         # probably not necessary but hey ho
@@ -220,10 +252,7 @@ sub import {
         if (defined $opts{'instantiate'} || $opts{'require'}) {
             my $method = $opts{'instantiate'};
             return map {
-                            # use string based eval to force bareword require
-                            eval "require $_"; 
-                            # and die it we can't do that 
-                            croak "Couldn't instantiate $_ : $@" if $@;
+							$_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
                             # instantiate with the options passed into the sub
                             # unless just requiring
                             $opts{require} ? $_ : $_->$method(@_);
@@ -236,6 +265,19 @@ sub import {
     };
 
 };
+
+
+sub list_packages {
+            my $pack = shift;
+            my @packs;
+            no strict 'refs';
+            for (grep !/^main::$/, grep /::$/, keys %{$pack})
+            {
+                push @packs, "$pack$_";
+                push @packs, list_packages($pack.$_)
+            }
+            return @packs;
+}
 
 
 1;
