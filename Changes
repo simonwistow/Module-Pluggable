@@ -1,12 +1,16 @@
+2004-06-06 - 1.2  Fix minor buglet
+    
+    Apply a patch from Tom Insam to fix requiring without
+    instantiating and make require failures more verbose.
 
 2003-12-15 - 1.11 Update MANIFEST.
-	
-	So that make dist works properly.
+    
+    So that make dist works properly.
 
 2003-12-15 - 1.1  Make it work with multi level plugins
 
     Apparently Foo::Plugin::Bar::Quux doesn't work. 
-	Thanks to Darren Chamberlain for spotting this.
+    Thanks to Darren Chamberlain for spotting this.
 
 2003-12-15 - 1.00 Add some more features
     

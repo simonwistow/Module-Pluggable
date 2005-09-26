@@ -13,7 +13,7 @@ use Carp qw(croak);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '1.11';
+$VERSION = '1.2';
 
 =pod
 
@@ -223,10 +223,10 @@ sub import {
                             # use string based eval to force bareword require
                             eval "require $_"; 
                             # and die it we can't do that 
-                            croak "Couldn't instantiate $_" if $@;
+                            croak "Couldn't instantiate $_ : $@" if $@;
                             # instantiate with the options passed into the sub
                             # unless just requiring
-                            $_->$method(@_) unless $opts{'require'}; 
+                            $opts{require} ? $_ : $_->$method(@_);
                         } keys %plugins;
         } else { 
             # no? just return the names
