@@ -11,7 +11,7 @@ my $build = Module::Build
                           'File::Spec::Functions' => 0,
 						  'UNIVERSAL::require'    => 0,
                         },
-         create_makefile_pl => 'passthrough',
+         create_makefile_pl => 'traditional',
        );
 
 $build->create_build_script;
