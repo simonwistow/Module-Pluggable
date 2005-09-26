@@ -1,3 +1,7 @@
+2003-12-15 - 1.1  Make it work with multi level plugins
+
+    Apparently Foo::Plugin::Bar::Quux doesn't work
+
 2003-12-15 - 1.00 Add some more features
     
     Added the ability to require without instantiating (for Tom Insam)    
@@ -9,17 +13,17 @@
     Explicitly number the tests which fixes some test more failures
 
 
-2003-10-21 - 0.9 We can rebuild you, we have the technology
+2003-10-21 - 0.9  We can rebuild you, we have the technology
     
     Having used this in the wild some changes to make it better.
 
 
-2003-10-20 - 0.8 Fix.
+2003-10-20 - 0.8  Fix.
     
     Namespace issues.
 
 
-2003-10-17 - 0.7 And take your Build.PL with you
+2003-10-17 - 0.7  And take your Build.PL with you
 
     Pesky MANIFEST.SKIP
 

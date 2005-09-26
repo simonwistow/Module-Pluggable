@@ -8,7 +8,7 @@ my $foo;
 ok($foo = MyTest->new());
 
 my @plugins;
-my @expected = qw(MyTest::Plugin::Bar MyTest::Plugin::Foo);
+my @expected = qw(MyTest::Plugin::Bar MyTest::Plugin::Foo MyTest::Plugin::Quux::Foo);
 ok(@plugins = sort $foo->foo);
 is_deeply(\@plugins, \@expected);
 

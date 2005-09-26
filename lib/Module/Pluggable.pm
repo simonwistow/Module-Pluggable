@@ -4,7 +4,7 @@ use strict;
 use vars qw($VERSION);
 use File::Find::Rule qw/find/;
 use File::Basename;
-use File::Spec::Functions qw(splitdir catdir);
+use File::Spec::Functions qw(splitdir catdir abs2rel);
 use Carp qw(croak);
 
 
@@ -13,7 +13,7 @@ use Carp qw(croak);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '1.00';
+$VERSION = '1.1';
 
 =pod
 
@@ -200,9 +200,10 @@ sub import {
                 # foreach one we've found 
                 foreach my $file (@files) {
                     # parse the file to get the name
-                    my ($name) = fileparse($file, qr{\.pm});
+                    my ($name, $directory) = fileparse($file, qr{\.pm});
+                    $directory = abs2rel($directory, $sp);
                     # then create the class name in a cross platform way
-                    push @plugins, join "::", splitdir catdir($searchpath,$name);
+                    push @plugins, join "::", splitdir catdir($searchpath, $directory, $name);
                 }
 
             }
