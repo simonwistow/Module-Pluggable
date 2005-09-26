@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: Module-Pluggable
-version: 1.7
+version: 1.8
 license: perl
 distribution_type: module
 requires:
@@ -15,5 +15,5 @@ conflicts: {}
 provides:
   Module::Pluggable:
     file: lib/Module/Pluggable.pm
-    version: 1.7
+    version: 1.8
 generated_by: Module::Build version 0.21

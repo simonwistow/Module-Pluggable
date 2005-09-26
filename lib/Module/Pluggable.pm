@@ -14,7 +14,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '1.7';
+$VERSION = '1.8';
 
 =pod
 
@@ -171,15 +171,16 @@ sub import {
     my $class   = shift;
     my %opts    = @_;
 
+
     # the default name for the method is 'plugins'
     my $sub = $opts{'sub_name'} || 'plugins';
   
-	# exceptions
-	my $only   = $opts{only};
-    my $except = $opts{except};     
+    # exceptions
+    my %only;   
+    my %except; 
 
-    my %only   = map { $_ => 1 } @{$only}   if defined $only;
-    my %except = map { $_ => 1 } @{$except} if defined $except;
+    %only   = map { $_ => 1 } @{$opts{'only'}}   if defined $opts{'only'};
+    %except = map { $_ => 1 } @{$opts{'except'}} if defined $opts{'except'};
 
     # get our package 
     my ($pkg) = caller;
@@ -230,15 +231,15 @@ sub import {
             }
         }
         
-		# This code should allow us to have plugins which are inner packages
-		# but it's not working at the moment
+        # This code should allow us to have plugins which are inner packages
+        # but it's not working at the moment
 
-		# some inner packages can only be found if we use other stuff first
-		# if (defined $opts{'instantiate'} || $opts{'require'}) {
-		#	for (@plugins) {
-	    #        $_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
-		#	}
-		#}
+        # some inner packages can only be found if we use other stuff first
+        # if (defined $opts{'instantiate'} || $opts{'require'}) {
+        #    for (@plugins) {
+        #        $_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
+        #    }
+        #}
 
 
 
@@ -246,14 +247,14 @@ sub import {
         # NOTE we should probably use all the stuff we've been given already
         # but then we can't unload it :(
         # foreach my $searchpath (@{$opts{'search_path'}}) 
-		# {
-		#	for (list_packages("${searchpath}::")) {
-		#		s!::$!!;
-		#		if (defined $opts{'instantiate'} || $opts{'require'}) {
-	    #            $_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
-		#		}
-	    #       push @plugins, $_;
-		#	}
+        # {
+        #    for (list_packages("${searchpath}::")) {
+        #        s!::$!!;
+        #        if (defined $opts{'instantiate'} || $opts{'require'}) {
+        #            $_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
+        #        }
+        #       push @plugins, $_;
+        #    }
         #}
 
         
@@ -265,17 +266,17 @@ sub import {
         # remove duplicates
         # probably not necessary but hey ho
         my %plugins;
-		for(@plugins) {
-			next if (defined $only   && !$only{$_}   );
-            next if (defined $except &&  $except{$_} );
-		 	$plugins{$_} = 1;
-		}
+        for(@plugins) {
+            next if (keys %only   && !$only{$_}   );
+            next if (keys %except &&  $except{$_} );
+             $plugins{$_} = 1;
+        }
 
         # are we instantiating or requring?
         if (defined $opts{'instantiate'} || $opts{'require'}) {
             my $method = $opts{'instantiate'};
             return map {
-							$_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
+                            $_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
                             # instantiate with the options passed into the sub
                             # unless just requiring
                             $opts{require} ? $_ : $_->$method(@_);

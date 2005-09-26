@@ -1,15 +1,23 @@
+2004-07-08 - 1.8 Fix those two options
+
+    They worked before but now they're more robust.
+
+2004-07-07 - 1.7 Add support for limiting plugins
+
+    Added 'only' and ''except' options.
+
 2004-06-03 - 1.6 Add a traditional Makefile.PL
-	
-	Even though I think Module::Build is much better.
+    
+    Even though I think Module::Build is much better.
 
 2004-05-25 - 1.5 Build.PL stupidity
 
-	Must add prereqs. Doh.
+    Must add prereqs. Doh.
 
 2004-05-25 - 1.4  Multiple instances
 
-	Made it so you could use it twice in the same package.
-	Removed the inner package stuff inorder to fix it properly.
+    Made it so you could use it twice in the same package.
+    Removed the inner package stuff inorder to fix it properly.
 
 2004-05-06 - 1.3  Ability to search in inner packages 
 
