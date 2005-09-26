@@ -1,0 +1,18 @@
+--- #YAML:1.0
+name: Module-Pluggable
+version: 0.6
+license: perl
+distribution_type: module
+requires:
+  File::Basename: 0
+  File::Find::Rule: 0
+  File::Spec::Functions: 0
+  Test::More: 0
+recommends: {}
+build_requires: {}
+conflicts: {}
+provides:
+  Module::Pluggable:
+    file: lib/Module/Pluggable.pm
+    version: 0.6
+generated_by: Module::Build version 0.20

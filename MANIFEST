@@ -1,0 +1,17 @@
+INSTALL
+MANIFEST			This list of files
+META.yml
+Makefile.PL
+lib/Module/Pluggable.pm
+t/01use.t
+t/02works.t
+t/03diffname.t
+t/04acmepath.t
+t/05postpath.t
+t/06multipath.t
+t/07instantiate.t
+t/08nothing.t
+t/lib/Acme/MyTest/Plugin/Foo.pm
+t/lib/MyTest/Extend/Plugin/Bar.pm
+t/lib/MyTest/Plugin/Bar.pm
+t/lib/MyTest/Plugin/Foo.pm

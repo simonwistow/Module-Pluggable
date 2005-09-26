@@ -1,0 +1,12 @@
+
+Same as practically every other Perl module ...
+
+        % perl Build.PL
+        % perl Build
+        % perl Build test
+        % sudo Build install
+
+N.B : If you don't already have Module::Build then running Makefile.PL
+will prompt you to install it.
+
+
