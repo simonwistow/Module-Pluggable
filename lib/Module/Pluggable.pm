@@ -14,7 +14,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '2.5';
+$VERSION = '2.6';
 
 =pod
 
@@ -228,6 +228,7 @@ sub import {
     # override 'require'
     $opts{'require'} = 1 if $opts{'inner'};
 
+    my ($package, $filename) = caller;
 
     # automatically turn a scalar search path or namespace into a arrayref
     for (qw(search_path search_dirs)) {
@@ -240,13 +241,9 @@ sub import {
   
 
     # get our package 
-    my ($pkg) = $opts{'package'} || caller;
+    my ($pkg) = $opts{'package'} || $package;
 
-
-    # have to turn off refs which makes me feel dirty but hey ho
-    no strict 'refs';
-    # export the subroutine
-    *{"$pkg\::$sub"} = sub {
+    my $subroutine = sub {
         my $self = shift;
 
 
@@ -256,8 +253,9 @@ sub import {
         # predeclare
         my @plugins;
 
+        
         # check to see if we're running under test
-        my @SEARCHDIR = exists $INC{"blib.pm"} ? grep {/blib/} @INC : @INC;
+        my @SEARCHDIR = exists $INC{"blib.pm"} && $filename =~ m!(^|/)blib/! ? grep {/blib/} @INC : @INC;
 
         # add any search_dir params
         unshift @SEARCHDIR, @{$opts{'search_dirs'}} if defined $opts{'search_dirs'};
@@ -384,7 +382,10 @@ sub import {
 
     };
 
-};
+
+    no strict 'refs';
+    *{"$pkg\::$sub"} = $subroutine;
+}
 
 
 sub list_packages {

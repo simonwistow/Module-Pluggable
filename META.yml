@@ -1,17 +1,13 @@
---- #YAML:1.0
-name: Module-Pluggable
-version: 2.5
-author:
-  - Simon Wistow <simon@thegestalt.org>
-abstract: |-
-  automatically give your module the ability to have plugins
-license: perl
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         Module-Pluggable
+version:      2.6
+version_from: lib/Module/Pluggable.pm
+installdirs:  site
 requires:
-  File::Basename: 0
-  File::Spec::Functions: 0
-  Test::More: 0
-provides:
-  Module::Pluggable:
-    file: lib/Module/Pluggable.pm
-    version: 2.5
-generated_by: Module::Build version 0.25
+    File::Basename:                0
+    File::Spec::Functions:         0
+    Test::More:                    0
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.25

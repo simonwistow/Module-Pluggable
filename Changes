@@ -1,3 +1,14 @@
+2005-02-02 - 2.6 Problems under tests 
+
+    Richard Clamp diagnosed a problem as being due to the 
+    fact that we exclude anything not from blib if there 
+    was blib.pm is %INC. Of course if the module being 
+    tested used another module that used Module::Pluggable 
+    then the second module would fail. 
+
+    Fixed it by checking to see if the caller had (^|/)blib/
+    in their filename.
+
 2004-12-20 - 2.5 'Inspiration' from Module::Pluggable::Fast
    
     Noticed Sebastian Riedel's curious Module::Pluggable::Fast
