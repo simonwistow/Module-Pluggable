@@ -1,9 +1,18 @@
-2004-06-06 - 1.3  Ability to search in inner packages 
+2004-05-25 - 1.5 Build.PL stupidity
+
+	Must add prereqs. Doh.
+
+2004-05-25 - 1.4  Multiple instances
+
+	Made it so you could use it twice in the same package.
+	Removed the inner package stuff inorder to fix it properly.
+
+2004-05-06 - 1.3  Ability to search in inner packages 
 
     Simon Cozens donated some code to allow us to search 
     inner packages.
 
-2004-06-06 - 1.2  Fix minor buglet
+2004-05-06 - 1.2  Fix minor buglet
     
     Apply a patch from Tom Insam to fix requiring without
     instantiating and make require failures more verbose.
