@@ -1,4 +1,13 @@
-2005-03-18 - 2.8 minor fixes
+2005-07-30 - 2.96 
+    Patch from Alex Vandiver to sort ::ISA::CACHE issues
+    More patches from Christopher H. Laco to sort out only and except
+    and to fix calling search_path( add => ... ) before plugins() 
+
+2005-07-09 - 2.9 More Tainting fixes
+    Patches from Christopher H. Laco and Joe McMahon  to do more taint fixing
+    Suggestion from Christopher H. Laco to do a can check before instatiating
+
+2005-03-18 - 2.8 Minor fixes
 
     Patch from Marcus Thiesen to fix so ISA cache magic
     Patch from Anthony D. Urso to get M::P to work under taint

@@ -2,22 +2,37 @@
 
 use strict;
 use lib 't/lib';
-use Test::More tests => 5;
+use Test::More tests => 10;
 
-my $foo;
-ok($foo = MyTest->new());
+{
+    my $foo;
+    ok($foo = MyTest->new());
 
-my @plugins;
-my @expected = qw(MyTest::Plugin::Foo);
-ok(@plugins = sort $foo->plugins);
-is_deeply(\@plugins, \@expected);
+    my @plugins;
+    my @expected = qw(MyTest::Plugin::Foo);
+    ok(@plugins = sort $foo->plugins);
+    is_deeply(\@plugins, \@expected);
 
-@plugins = ();
+    @plugins = ();
 
-ok(@plugins = sort MyTest->plugins);
-is_deeply(\@plugins, \@expected);
+    ok(@plugins = sort MyTest->plugins);
+    is_deeply(\@plugins, \@expected);
+}
 
+{
+    my $foo;
+    ok($foo = MyTestSub->new());
 
+    my @plugins;
+    my @expected = qw(MyTest::Plugin::Foo);
+    ok(@plugins = sort $foo->plugins);
+    is_deeply(\@plugins, \@expected);
+
+    @plugins = ();
+
+    ok(@plugins = sort MyTestSub->plugins);
+    is_deeply(\@plugins, \@expected);
+}
 
 package MyTest;
 
@@ -30,5 +45,19 @@ sub new {
     return bless {}, $class;
 
 }
-1;
 
+package MyTestSub;
+
+use strict;
+use Module::Pluggable search_path => "MyTest::Plugin";
+
+
+sub new {
+    my $class = shift;
+    my $self = bless {}, $class;
+
+    $self->only("MyTest::Plugin::Foo");
+
+    return $self;
+}
+1;

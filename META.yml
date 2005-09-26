@@ -1,10 +1,9 @@
---- #YAML:1.0
+---
 name: Module-Pluggable
-version: 2.9
+version: 2.95
 author:
   - Simon Wistow <simon@thegestalt.org>
-abstract: |-
-  automatically give your module the ability to have plugins
+abstract: automatically give your module the ability to have plugins
 license: perl
 requires:
   File::Basename: 0
@@ -13,5 +12,5 @@ requires:
 provides:
   Module::Pluggable:
     file: lib/Module/Pluggable.pm
-    version: 2.9
+    version: 2.95
 generated_by: Module::Build version 0.25

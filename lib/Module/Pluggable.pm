@@ -13,7 +13,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '2.9';
+$VERSION = '2.95';
 
 =pod
 
@@ -318,7 +318,7 @@ sub import {
                     }
                     my $plugin = join "::", splitdir catdir($searchpath, $directory, $name);
                     if (defined $opts{'instantiate'} || $opts{'require'}) { 
-						
+                        
                         eval "CORE::require $plugin";
                         carp "Couldn't require $plugin : $@" if $@;
                     }
@@ -386,7 +386,6 @@ sub import {
         # probably not necessary but hey ho
         my %plugins;
         for(@plugins) {
-            next if ($_ =~ /::::ISA::CACHE$/); 
             next if (keys %only   && !$only{$_}     );
             next unless (!defined $only || m!$only! );
 
@@ -411,17 +410,39 @@ sub import {
     my $searchsub = sub {
               my $self = shift;
               my ($action,@paths) = @_;
- 
-              push @{$opts{'search_path'}}, @paths    if($action eq 'add');
-              $opts{'search_path'}       = \@paths    if($action eq 'new');
+
+              $opts{'search_path'} = ["${pkg}::Plugin"] if ($action eq 'add'  and not   $opts{'search_path'} );; 
+              push @{$opts{'search_path'}}, @paths      if ($action eq 'add');
+              $opts{'search_path'}       = \@paths      if ($action eq 'new');
               return $opts{'search_path'};
     };
 
+    my $onlysub = sub {
+        my ($self, $only) = @_;
+
+        if (defined $only) {
+            $opts{'only'} = $only;
+        };
+        
+        return $opts{'only'};
+    };
+
+    my $exceptsub = sub {
+        my ($self, $except) = @_;
+
+        if (defined $except) {
+            $opts{'except'} = $except;
+        };
+        
+        return $opts{'except'};
+    };
 
     no strict 'refs';
     no warnings 'redefine';
     *{"$pkg\::$sub"} = $subroutine;
     *{"$pkg\::search_path"} = $searchsub;
+    *{"$pkg\::only"} = $onlysub;
+    *{"$pkg\::except"} = $exceptsub;
 }
 
 
@@ -437,7 +458,7 @@ sub list_packages {
                 push @packs, "$pack$_" unless @children or /^::/; 
                 push @packs, @children;
             }
-            return @packs;
+            return grep {$_ !~ /::::ISA::CACHE/} @packs;
 }
 
 
