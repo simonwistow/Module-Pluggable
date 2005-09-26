@@ -14,7 +14,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '2.4';
+$VERSION = '2.5';
 
 =pod
 
@@ -118,14 +118,14 @@ and similarly for only which will only load plugins which match.
 
 Remember you can use the module more than once
 
-	package MyClass;
-	use Module::Pluggable search_path => 'MyClass::Filters' sub_name => 'filters';
-	use Module::Pluggable search_path => 'MyClass::Plugins' sub_name => 'plugins';
+    package MyClass;
+    use Module::Pluggable search_path => 'MyClass::Filters' sub_name => 'filters';
+    use Module::Pluggable search_path => 'MyClass::Plugins' sub_name => 'plugins';
 
 and then later ...
 
-	my @filters = $self->filters;
-	my @plugins = $self->plugins;
+    my @filters = $self->filters;
+    my @plugins = $self->plugins;
 
 =head1 INNER PACKAGES
 
@@ -229,7 +229,7 @@ sub import {
     $opts{'require'} = 1 if $opts{'inner'};
 
 
-    # automatically turn a scalr search path or namespace into a arrayref
+    # automatically turn a scalar search path or namespace into a arrayref
     for (qw(search_path search_dirs)) {
         $opts{$_} = [ $opts{$_} ] if exists $opts{$_} && !ref($opts{$_});
     }
@@ -241,6 +241,7 @@ sub import {
 
     # get our package 
     my ($pkg) = $opts{'package'} || caller;
+
 
     # have to turn off refs which makes me feel dirty but hey ho
     no strict 'refs';
@@ -293,68 +294,67 @@ sub import {
                     my ($name, $directory) = fileparse($file, qr{\.pm});
                     $directory = abs2rel($directory, $sp);
                     # then create the class name in a cross platform way
-                    push @plugins, join "::", splitdir catdir($searchpath, $directory, $name);
+                    $directory =~ s/^[a-z]://i if($^O =~ /MSWin32|dos/);       # remove volume
+                    my $plugin = join "::", splitdir catdir($searchpath, $directory, $name);
+                    if (defined $opts{'instantiate'} || $opts{'require'}) { 
+                        eval "CORE::require $plugin";
+                        carp "Couldn't require $plugin : $@" if $@;
+                    }
+                    push @plugins, $plugin;
                 }
 
-            }
-        }
+                # now add stuff that may have been in package
+                # NOTE we should probably use all the stuff we've been given already
+                # but then we can't unload it :(
+                unless (exists $opts{inner} && !$opts{inner}) {
+                    for (list_packages($searchpath)) {
+                        if (defined $opts{'instantiate'} || $opts{'require'}) {
+                            eval "CORE::require $_";
+                            # *No warnings here* 
+                            # next if $@;
+                        }    
+                        push @plugins, $_;
+                    } # for list packages
+                } # unless inner
+            } # foreach $searchpath
+        } # foreach $dir
 
-        # This code should allow us to have plugins which are inner packages
-        # some inner packages can only be found if we use other stuff first
-        if (defined $opts{'instantiate'} || $opts{'require'}) {
-            for (@plugins) {
-                eval "CORE::require $_";
-                carp "Couldn't require $_ : $@" if $@;
-            }
-        }
 
 
-        # now add stuff that may have been in package
-        # NOTE we should probably use all the stuff we've been given already
-        # but then we can't unload it :(
-        unless (exists $opts{inner} && !$opts{inner}) {
-            for my $path (@{$opts{'search_path'}}) {
-                for (list_packages($path)) {
-                    if (defined $opts{'instantiate'} || $opts{'require'}) {
-                        eval "CORE::require $_";
-                        # *No warnings here* 
-                    }    
-                    push @plugins, $_;
-                }
-            }
-        }
 
         # push @plugins, map { print STDERR "$_\n"; $_->require } list_packages($_) for (@{$opts{'search_path'}});
         
         # return blank unless we've found anything
         return () unless @plugins;
 
-    	# exceptions
-    	my %only;   
-    	my %except; 
-		my $only;
-		my $except;
 
-		if (defined $opts{'only'}) {
-			if (ref($opts{'only'}) eq 'ARRAY') {
-				%only   = map { $_ => 1 } @{$opts{'only'}};
-			} elsif (ref($opts{'only'}) eq 'Regexp') {
-				$only = $opts{'only'}
-			} elsif (ref($opts{'only'}) eq '') {
-				$only{$opts{'only'}} = 1;
-			}
-		}
-		
+        # exceptions
+        my %only;   
+        my %except; 
+        my $only;
+        my $except;
 
-		if (defined $opts{'except'}) {
-			if (ref($opts{'except'}) eq 'ARRAY') {
-				%except   = map { $_ => 1 } @{$opts{'except'}};
-			} elsif (ref($opts{'except'}) eq 'Regexp') {
-				$except = $opts{'except'}
-			} elsif (ref($opts{'except'}) eq '') {
-				$except{$opts{'except'}} = 1;
-			}
-		}
+        if (defined $opts{'only'}) {
+            if (ref($opts{'only'}) eq 'ARRAY') {
+                %only   = map { $_ => 1 } @{$opts{'only'}};
+            } elsif (ref($opts{'only'}) eq 'Regexp') {
+                $only = $opts{'only'}
+            } elsif (ref($opts{'only'}) eq '') {
+                $only{$opts{'only'}} = 1;
+            }
+        }
+        
+
+        if (defined $opts{'except'}) {
+            if (ref($opts{'except'}) eq 'ARRAY') {
+                %except   = map { $_ => 1 } @{$opts{'except'}};
+            } elsif (ref($opts{'except'}) eq 'Regexp') {
+                $except = $opts{'except'}
+            } elsif (ref($opts{'except'}) eq '') {
+                $except{$opts{'except'}} = 1;
+            }
+        }
+
 
 
 
@@ -365,27 +365,22 @@ sub import {
         my %plugins;
         for(@plugins) {
             next if (keys %only   && !$only{$_}     );
-			next unless (!defined $only || m!$only! );
+            next unless (!defined $only || m!$only! );
 
             next if (keys %except &&  $except{$_}   );
             next if (defined $except &&  m!$except! );
-
             $plugins{$_} = 1;
         }
 
         # are we instantiating or requring?
-        if (defined $opts{'instantiate'} || $opts{'require'}) {
+        if (defined $opts{'instantiate'}) {
             my $method = $opts{'instantiate'};
-            return map {
-                            #$_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
-                            # instantiate with the options passed into the sub
-                            # unless just requiring
-                            $opts{require} ? $_ : $_->$method(@_);
-                        } keys %plugins;
+            return map { $_->$method(@_) } keys %plugins;
         } else { 
             # no? just return the names
             return keys %plugins;
         }
+
 
     };
 

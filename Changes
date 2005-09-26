@@ -1,3 +1,16 @@
+2004-12-20 - 2.5 'Inspiration' from Module::Pluggable::Fast
+   
+    Noticed Sebastian Riedel's curious Module::Pluggable::Fast
+    which appears to break API backwards compatability in order
+    to inline an explicit call to 'new'. It has no tests.
+
+    A quick benchmark showed that it was about 10% faster 
+    because of cruft that had accumulated over time. So
+    a few quick changes and now Module::Pluggable is only 
+    3% slower. Which is nice. 
+
+    Also added a patch from Barbie to fix things under Windows.
+
 2004-12-15 - 2.4 Bug fix
 
     There seemed to be some irregularities in how 5.8.1 worked 
