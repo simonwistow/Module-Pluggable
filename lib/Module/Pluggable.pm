@@ -13,7 +13,7 @@ use Carp qw(croak);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '1.1';
+$VERSION = '1.11';
 
 =pod
 

@@ -1,6 +1,12 @@
+
+2003-12-15 - 1.11 Update MANIFEST.
+	
+	So that make dist works properly.
+
 2003-12-15 - 1.1  Make it work with multi level plugins
 
-    Apparently Foo::Plugin::Bar::Quux doesn't work
+    Apparently Foo::Plugin::Bar::Quux doesn't work. 
+	Thanks to Darren Chamberlain for spotting this.
 
 2003-12-15 - 1.00 Add some more features
     
