@@ -1,3 +1,5 @@
 Build
 _build
 blib
+Makefile
+\.tar\.gz$

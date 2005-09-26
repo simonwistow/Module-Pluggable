@@ -14,7 +14,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '2.6';
+$VERSION = '2.7';
 
 =pod
 
@@ -189,6 +189,19 @@ This is for use by extension modules which build on C<Module::Pluggable>:
 passing a C<package> option allows you to place the plugin method in a
 different package other than your own.
 
+=head1 METHODs
+
+=head2 search_path
+
+The method C<search_path> is exported into you namespace as well. 
+You can call that at any time to change or replace the 
+search_path.
+
+    $self->search_path( add => "New::Path" ); # add
+    $self->search_path( new => "New::Path" ); # replace
+
+
+
 =head1 FUTURE PLANS
 
 This does everything I need and I can't really think of any other 
@@ -227,6 +240,10 @@ sub import {
 
     # override 'require'
     $opts{'require'} = 1 if $opts{'inner'};
+
+    if ($opts{'par'}) {
+    
+    }
 
     my ($package, $filename) = caller;
 
@@ -383,8 +400,20 @@ sub import {
     };
 
 
+    my $searchsub = sub {
+              my $self = shift;
+              my ($action,@paths) = @_;
+ 
+              push @{$opts{'search_path'}}, @paths    if($action eq 'add');
+              $opts{'search_path'}       = \@paths    if($action eq 'new');
+              return $opts{'search_path'};
+    };
+
+
     no strict 'refs';
+    no warnings 'redefine';
     *{"$pkg\::$sub"} = $subroutine;
+    *{"$pkg\::search_path"} = $searchsub;
 }
 
 
