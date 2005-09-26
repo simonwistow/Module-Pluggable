@@ -2,11 +2,13 @@ Build.PL
 Changes
 INSTALL
 MANIFEST			This list of files
+MANIFEST.SKIP
 META.yml
 Makefile.PL
 README
 lib/Module/Pluggable.pm
 t/01use.t
+t/02alsoworks.t
 t/02works.t
 t/03diffname.t
 t/04acmedir.t
@@ -24,7 +26,11 @@ t/10innerpack_noinner.t
 t/10innerpack_override.t
 t/11usetwice.t
 t/12only.t
+t/12onlyarray.t
+t/12onlyregex.t
 t/13except.t
+t/13exceptarray.t
+t/13exceptregex.t
 t/14package.t
 t/acme/Acme/MyTest/Plugin/Foo.pm
 t/lib/Acme/MyTest/Plugin/Foo.pm
@@ -32,6 +38,10 @@ t/lib/MyTest/Extend/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Foo.pm
 t/lib/MyTest/Plugin/Quux/Foo.pm
+t/lib/MyOtherTest/Plugin/Bar.pm
+t/lib/MyOtherTest/Plugin/Foo.pm
+t/lib/MyOtherTest/Plugin/Quux.pm
+t/lib/MyOtherTest/Plugin/Quux/Foo.pm
 t/lib/InnerTest/Plugin/Foo.pm
 t/plugins/test.plugin
 

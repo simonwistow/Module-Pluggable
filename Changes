@@ -1,8 +1,18 @@
+2004-12-15 - 2.4 Bug fix
+
+    There seemed to be some irregularities in how 5.8.1 worked 
+    with the list_packages method. Fixed thanks to Schwern, 
+    Michael Cummings and Jos Boumans. 
+
+    Added some more documentation.
+
+    Added ability to specify except and only as regexes.
+
 2004-10-27 - 2.3 Niceties
 
-	Allow you to explicitly stop looking for inner packages.
-	Made it nicer to have single element search_dirs and search_paths.
-	
+    Allow you to explicitly stop looking for inner packages.
+    Made it nicer to have single element search_dirs and search_paths.
+    
 
 2004-10-08 - 2.2 Dieting
     
@@ -15,9 +25,9 @@
 2004-08-25 - 2.1 Small buglette
 
     Require inner packages when appropriate. This helps towards
-	making things work with PAR. Thanks to Brian Cassidy.
+    making things work with PAR. Thanks to Brian Cassidy.
 
-	Never released.
+    Never released.
     
 2004-08-19 - 2.0 Working inner packages
 

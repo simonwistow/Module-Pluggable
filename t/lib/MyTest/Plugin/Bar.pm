@@ -1,4 +1,4 @@
-package Acme::MyTest::Plugin::Bar;
+package MyTest::Plugin::Bar;
 
 
 use strict;

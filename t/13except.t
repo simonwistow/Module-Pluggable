@@ -10,6 +10,7 @@ ok($foo = MyTest->new());
 my @plugins;
 my @expected = qw(MyTest::Plugin::Bar MyTest::Plugin::Quux::Foo);
 ok(@plugins = sort $foo->plugins);
+
 is_deeply(\@plugins, \@expected);
 
 @plugins = ();
@@ -22,7 +23,7 @@ is_deeply(\@plugins, \@expected);
 package MyTest;
 
 use strict;
-use Module::Pluggable except => [ "MyTest::Plugin::Foo" ];
+use Module::Pluggable except => "MyTest::Plugin::Foo";
 
 
 

@@ -22,7 +22,7 @@ is_deeply(\@plugins, \@expected);
 package MyTest;
 
 use strict;
-use Module::Pluggable only => [ "MyTest::Plugin::Foo" ];
+use Module::Pluggable only => "MyTest::Plugin::Foo";
 
 
 sub new {

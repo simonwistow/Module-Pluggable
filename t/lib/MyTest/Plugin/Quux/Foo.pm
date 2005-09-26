@@ -1,4 +1,4 @@
-package MyTest::Plugin::Foo;
+package MyTest::Plugin::Quux::Foo;
 
 
 use strict;

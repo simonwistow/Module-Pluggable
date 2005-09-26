@@ -14,7 +14,6 @@ push @plugins,  $foo->plugins;
 push @plugins, $foo->foo;
 
 @plugins = sort @plugins;
-
 is_deeply(\@plugins, \@expected);
 
 @plugins = ();

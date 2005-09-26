@@ -14,7 +14,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '2.3';
+$VERSION = '2.4';
 
 =pod
 
@@ -55,7 +55,7 @@ Optionally it instantiates those classes for you.
 Alternatively, if you don't want to use 'plugins' as the method ...
     
     package MyClass;
-    use Module::Pluggable (sub_name => 'foo');
+    use Module::Pluggable sub_name => 'foo';
 
 
 and then later ...
@@ -93,9 +93,39 @@ alternatively you can just require the module without instantiating it
 since requiring automatically searches inner packages, which may not be desirable, you can turn this off
 
 
-	package MyClass;
-	use Module::Pluggable require => 1, inner => 0;
+    package MyClass;
+    use Module::Pluggable require => 1, inner => 0;
 
+
+You can limit the plugins loaded using the except option, either as a string,
+array ref or regex
+
+    package MyClass;
+    use Module::Pluggable except => 'MyClass::Plugin::Foo';
+
+or
+
+    package MyClass;
+    use Module::Pluggable except => ['MyClass::Plugin::Foo', 'MyClass::Plugin::Bar'];
+
+or
+
+    package MyClass;
+    use Module::Pluggable except => qr/^MyClass::Plugin::(Foo|Bar)$/;
+
+
+and similarly for only which will only load plugins which match.
+
+Remember you can use the module more than once
+
+	package MyClass;
+	use Module::Pluggable search_path => 'MyClass::Filters' sub_name => 'filters';
+	use Module::Pluggable search_path => 'MyClass::Plugins' sub_name => 'plugins';
+
+and then later ...
+
+	my @filters = $self->filters;
+	my @plugins = $self->plugins;
 
 =head1 INNER PACKAGES
 
@@ -144,13 +174,13 @@ If set to 1 will override C<require>.
 
 =head2 only
 
-Takes an array ref containing the names of the only plugins to 
+Takes a string, array ref or regex describing the names of the only plugins to 
 return. Whilst this may seem perverse ... well, it is. But it also 
 makes sense. Trust me.
 
 =head2 except
 
-Similar to C<only> it takes an array ref of plugins to exclude 
+Similar to C<only> it takes a description of plugins to exclude 
 from returning. This is slightly less perverse.
 
 =head2 package
@@ -162,9 +192,10 @@ different package other than your own.
 =head1 FUTURE PLANS
 
 This does everything I need and I can't really think of any other 
-features I want to add. 
+features I want to add. Famous last words of course
 
-Recently fixed to find inner packages and to make it 'just work' with PAR.
+Recently tried fixed to find inner packages and to make it 
+'just work' with PAR but there are still some issues.
 
 
 However suggestions (and patches) are welcome.
@@ -194,25 +225,19 @@ sub import {
     my $class   = shift;
     my %opts    = @_;
 
-	# override 'require'
-	$opts{'require'} = 1 if $opts{'inner'};
+    # override 'require'
+    $opts{'require'} = 1 if $opts{'inner'};
 
 
-	# automatically turn a scalr search path or namespace into a arrayref
-	for (qw(search_path search_dirs)) {
-		$opts{$_} = [ $opts{$_} ] if exists $opts{$_} && !ref($opts{$_});
-	}
+    # automatically turn a scalr search path or namespace into a arrayref
+    for (qw(search_path search_dirs)) {
+        $opts{$_} = [ $opts{$_} ] if exists $opts{$_} && !ref($opts{$_});
+    }
 
 
     # the default name for the method is 'plugins'
     my $sub = $opts{'sub_name'} || 'plugins';
   
-    # exceptions
-    my %only;   
-    my %except; 
-
-    %only   = map { $_ => 1 } @{$opts{'only'}}   if defined $opts{'only'};
-    %except = map { $_ => 1 } @{$opts{'except'}} if defined $opts{'except'};
 
     # get our package 
     my ($pkg) = $opts{'package'} || caller;
@@ -254,16 +279,16 @@ sub import {
                 my @files = ();
                 File::Find::find(
                     sub { # Inlined from File::Find::Rule C< name => '*.pm' >
-						return unless $File::Find::name =~ /\.pm$/;
-						(my $path = $File::Find::name) =~ s#^\\./##;
-				        push @files, $path;
+                        return unless $File::Find::name =~ /\.pm$/;
+                        (my $path = $File::Find::name) =~ s#^\\./##;
+                        push @files, $path;
                     },
                     $sp );
                 chdir $cwd;
 
                 # foreach one we've found 
                 foreach my $file (@files) {
-					next unless $file =~ m!\.pm$!;
+                    next unless $file =~ m!\.pm$!;
                     # parse the file to get the name
                     my ($name, $directory) = fileparse($file, qr{\.pm});
                     $directory = abs2rel($directory, $sp);
@@ -273,7 +298,7 @@ sub import {
 
             }
         }
-        
+
         # This code should allow us to have plugins which are inner packages
         # some inner packages can only be found if we use other stuff first
         if (defined $opts{'instantiate'} || $opts{'require'}) {
@@ -284,27 +309,54 @@ sub import {
         }
 
 
-
         # now add stuff that may have been in package
         # NOTE we should probably use all the stuff we've been given already
         # but then we can't unload it :(
-		unless (exists $opts{inner} && !$opts{inner}) {
-	        for my $path (@{$opts{'search_path'}}) {
-    	        for (list_packages($path)) {
-        	        if (defined $opts{'instantiate'} || $opts{'require'}) {
-						eval "CORE::require $_";
-                	    # *No warnings here* 
-                	}    
-                	push @plugins, $_;
-            	}
-        	}
-		}
+        unless (exists $opts{inner} && !$opts{inner}) {
+            for my $path (@{$opts{'search_path'}}) {
+                for (list_packages($path)) {
+                    if (defined $opts{'instantiate'} || $opts{'require'}) {
+                        eval "CORE::require $_";
+                        # *No warnings here* 
+                    }    
+                    push @plugins, $_;
+                }
+            }
+        }
 
         # push @plugins, map { print STDERR "$_\n"; $_->require } list_packages($_) for (@{$opts{'search_path'}});
-
         
         # return blank unless we've found anything
         return () unless @plugins;
+
+    	# exceptions
+    	my %only;   
+    	my %except; 
+		my $only;
+		my $except;
+
+		if (defined $opts{'only'}) {
+			if (ref($opts{'only'}) eq 'ARRAY') {
+				%only   = map { $_ => 1 } @{$opts{'only'}};
+			} elsif (ref($opts{'only'}) eq 'Regexp') {
+				$only = $opts{'only'}
+			} elsif (ref($opts{'only'}) eq '') {
+				$only{$opts{'only'}} = 1;
+			}
+		}
+		
+
+		if (defined $opts{'except'}) {
+			if (ref($opts{'except'}) eq 'ARRAY') {
+				%except   = map { $_ => 1 } @{$opts{'except'}};
+			} elsif (ref($opts{'except'}) eq 'Regexp') {
+				$except = $opts{'except'}
+			} elsif (ref($opts{'except'}) eq '') {
+				$except{$opts{'except'}} = 1;
+			}
+		}
+
+
 
 
 
@@ -312,9 +364,13 @@ sub import {
         # probably not necessary but hey ho
         my %plugins;
         for(@plugins) {
-            next if (keys %only   && !$only{$_}   );
-            next if (keys %except &&  $except{$_} );
-             $plugins{$_} = 1;
+            next if (keys %only   && !$only{$_}     );
+			next unless (!defined $only || m!$only! );
+
+            next if (keys %except &&  $except{$_}   );
+            next if (defined $except &&  m!$except! );
+
+            $plugins{$_} = 1;
         }
 
         # are we instantiating or requring?
@@ -344,8 +400,9 @@ sub list_packages {
             for (grep !/^main::$/, grep /::$/, keys %{$pack})
             {
                 s!::$!!;
-                push @packs, "$pack$_";
-                push @packs, list_packages($pack.$_)
+                my @children = list_packages($pack.$_);
+                 push @packs, "$pack$_" unless @children or /^::/; 
+                push @packs, @children;
             }
             return @packs;
 }
