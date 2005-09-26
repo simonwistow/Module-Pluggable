@@ -1,4 +1,4 @@
-#!perl -w
+#!perl -wT
 
 use strict;
 use lib 't/lib';

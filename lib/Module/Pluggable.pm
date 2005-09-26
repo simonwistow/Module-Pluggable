@@ -13,7 +13,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '2.8';
+$VERSION = '2.9';
 
 =pod
 
@@ -303,14 +303,22 @@ sub import {
 
                 # foreach one we've found 
                 foreach my $file (@files) {
-                    next unless $file =~ m!\.pm$!;
+                    # untaint the file; accept .pm only
+                    next unless ($file) = ($file =~ /(.*\.pm)$/); 
                     # parse the file to get the name
-                    my ($name, $directory) = fileparse($file, qr{\.pm});
+                    my ($name, $directory) = fileparse($file, qr{\.pm$});
                     $directory = abs2rel($directory, $sp);
                     # then create the class name in a cross platform way
                     $directory =~ s/^[a-z]://i if($^O =~ /MSWin32|dos/);       # remove volume
+                    if ($directory) {
+                      ($directory) = ($directory =~ /(.*)/);
+                    }
+                    else {
+                      $directory = "";
+                    }
                     my $plugin = join "::", splitdir catdir($searchpath, $directory, $name);
                     if (defined $opts{'instantiate'} || $opts{'require'}) { 
+						
                         eval "CORE::require $plugin";
                         carp "Couldn't require $plugin : $@" if $@;
                     }
@@ -390,7 +398,7 @@ sub import {
         # are we instantiating or requring?
         if (defined $opts{'instantiate'}) {
             my $method = $opts{'instantiate'};
-            return map { $_->$method(@_) } keys %plugins;
+            return map { ($_->can($method)) ? $_->$method(@_) : () } keys %plugins;
         } else { 
             # no? just return the names
             return keys %plugins;
