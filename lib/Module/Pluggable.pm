@@ -2,10 +2,10 @@ package Module::Pluggable;
 
 use strict;
 use vars qw($VERSION);
-use File::Find::Rule qw/find/;
+use Cwd        ();
+use File::Find ();
 use File::Basename;
 use File::Spec::Functions qw(splitdir catdir abs2rel);
-use UNIVERSAL::require;
 use Carp qw(croak carp);
 
 
@@ -14,7 +14,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '2.0';
+$VERSION = '2.2';
 
 =pod
 
@@ -30,15 +30,13 @@ Simple use Module::Pluggable -
     package MyClass;
     use Module::Pluggable;
     
-    
+
 and then later ...
 
     use MyClass;
     my $mc = MyClass->new();
     # returns the names of all plugins installed under MyClass::Plugin::*
     my @plugins = $mc->plugins(); 
-
-    
 
 =head1 DESCRIPTION
 
@@ -152,10 +150,11 @@ different package other than your own.
 
 =head1 FUTURE PLANS
 
-This does everything I need and I can't really think fo any other 
-features I want to add. Finding multiple packages in one .pm file
-is probably too hard and AFAICS it should 'just work'[tm] with 
-PAR.
+This does everything I need and I can't really think of any other 
+features I want to add. 
+
+Recently fixed to find inner packages and to make it 'just work' with PAR.
+
 
 However suggestions (and patches) are welcome.
 
@@ -226,14 +225,26 @@ sub import {
                 # create the search directory in a cross platform goodness way
                 my $sp = catdir($dir, (split /::/, $searchpath));
                 # if it doesn't exist or it's not a dir then skip it
-                next unless ( -e $sp && -d $sp );
-                
+                next unless ( -e $sp && -d _ ); # Use the cached stat the second time
+
+
                 # find all the .pm files in it
                 # this isn't perfect and won't find multiple plugins per file
-                my @files = find( name => "*.pm", in => [$sp] );
+                my $cwd = Cwd::getcwd;
+                my @files = ();
+                File::Find::find(
+                    sub { # Inlined from File::Find::Rule C< name => '*.pm' >
+						return unless $File::Find::name =~ /\.pm$/;
+						(my $path = $File::Find::name) =~ s#^\\./##;
+				        push @files, $path;
+                    },
+                    $sp );
+                chdir $cwd;
 
                 # foreach one we've found 
                 foreach my $file (@files) {
+					next unless $file =~ m!\.pm$!;
+					print "FILE = $file\n";
                     # parse the file to get the name
                     my ($name, $directory) = fileparse($file, qr{\.pm});
                     $directory = abs2rel($directory, $sp);
@@ -245,12 +256,11 @@ sub import {
         }
         
         # This code should allow us to have plugins which are inner packages
-        # but it's not working at the moment
-
         # some inner packages can only be found if we use other stuff first
         if (defined $opts{'instantiate'} || $opts{'require'}) {
             for (@plugins) {
-                $_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
+                eval "CORE::require $_";
+                carp "Couldn't require $_ : $@" if $@;
             }
         }
 
@@ -259,7 +269,17 @@ sub import {
         # now add stuff that may have been in package
         # NOTE we should probably use all the stuff we've been given already
         # but then we can't unload it :(
-        push @plugins, list_packages($_) for (@{$opts{'search_path'}});
+        for my $path (@{$opts{'search_path'}}) {
+            for (list_packages($path)) {
+                if (defined $opts{'instantiate'} || $opts{'require'}) {
+					eval "CORE::require $_";
+                    # *No warnings here* 
+                }    
+                push @plugins, $_;
+            }
+        }
+
+        # push @plugins, map { print STDERR "$_\n"; $_->require } list_packages($_) for (@{$opts{'search_path'}});
 
         
         # return blank unless we've found anything
@@ -299,7 +319,6 @@ sub list_packages {
             my $pack = shift; $pack .= "::" unless $pack =~ m!::$!;
 
             no strict 'refs';
-
             my @packs;
             for (grep !/^main::$/, grep /::$/, keys %{$pack})
             {

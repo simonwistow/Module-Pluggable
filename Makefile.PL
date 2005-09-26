@@ -6,10 +6,8 @@ WriteMakefile
           'VERSION_FROM' => 'lib/Module/Pluggable.pm',
           'PREREQ_PM' => {
                            'File::Basename' => '0',
-                           'File::Find::Rule' => '0',
                            'File::Spec::Functions' => '0',
-                           'Test::More' => '0',
-                           'UNIVERSAL::require' => '0'
+                           'Test::More' => '0'
                          },
           'INSTALLDIRS' => 'site',
           'PL_FILES' => {}

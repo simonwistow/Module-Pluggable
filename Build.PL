@@ -7,9 +7,7 @@ my $build = Module::Build
          requires    => {
                           'Test::More'            => 0,
                           'File::Basename'        => 0,
-                          'File::Find::Rule'      => 0,
                           'File::Spec::Functions' => 0,
-						  'UNIVERSAL::require'    => 0,
                         },
          create_makefile_pl => 'traditional',
        );

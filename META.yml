@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: Module-Pluggable
-version: 2.0
+version: 2.2
 author:
   - Simon Wistow <simon@thegestalt.org>
 abstract: |-
@@ -8,12 +8,10 @@ abstract: |-
 license: perl
 requires:
   File::Basename: 0
-  File::Find::Rule: 0
   File::Spec::Functions: 0
   Test::More: 0
-  UNIVERSAL::require: 0
 provides:
   Module::Pluggable:
     file: lib/Module/Pluggable.pm
-    version: 2.0
+    version: 2.2
 generated_by: Module::Build version 0.25
