@@ -17,6 +17,9 @@ t/08nothing.t
 t/09require.t
 t/10innerpack.t
 t/11usetwice.t
+t/12only.t
+t/13except.t
+t/14package.t
 t/lib/Acme/MyTest/Plugin/Foo.pm
 t/lib/MyTest/Extend/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Bar.pm

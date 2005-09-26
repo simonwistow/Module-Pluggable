@@ -1,3 +1,8 @@
+2004-07-18 - 1.9 Add 'package' option
+
+    This lets you install a method in another package's 
+    namespace. Thanks to Simon Cozens.
+
 2004-07-08 - 1.8 Fix those two options
 
     They worked before but now they're more robust.

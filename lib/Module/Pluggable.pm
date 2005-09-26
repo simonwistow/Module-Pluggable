@@ -14,7 +14,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '1.8';
+$VERSION = '1.9';
 
 =pod
 
@@ -137,6 +137,12 @@ makes sense. Trust me.
 Similar to C<only> it takes an array ref of plugins to exclude 
 from returning. This is slightly less perverse.
 
+=head2 package
+
+This is for use by extension modules which build on C<Module::Pluggable>:
+passing a C<package> option allows you to place the plugin method in a
+different package other than your own.
+
 =head1 FUTURE PLANS
 
 This does everything I need and I can't really think fo any other 
@@ -183,7 +189,7 @@ sub import {
     %except = map { $_ => 1 } @{$opts{'except'}} if defined $opts{'except'};
 
     # get our package 
-    my ($pkg) = caller;
+    my ($pkg) = $opts{'package'} || caller;
 
     # have to turn off refs which makes me feel dirty but hey ho
     no strict 'refs';
