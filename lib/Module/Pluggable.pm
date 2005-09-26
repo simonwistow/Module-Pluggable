@@ -2,7 +2,6 @@ package Module::Pluggable;
 
 use strict;
 use vars qw($VERSION);
-use Cwd        ();
 use File::Find ();
 use File::Basename;
 use File::Spec::Functions qw(splitdir catdir abs2rel);
@@ -14,7 +13,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '2.7';
+$VERSION = '2.8';
 
 =pod
 
@@ -291,16 +290,16 @@ sub import {
 
                 # find all the .pm files in it
                 # this isn't perfect and won't find multiple plugins per file
-                my $cwd = Cwd::getcwd;
+                #my $cwd = Cwd::getcwd;
                 my @files = ();
-                File::Find::find(
+                File::Find::find( { no_chdir => 1, wanted =>
                     sub { # Inlined from File::Find::Rule C< name => '*.pm' >
                         return unless $File::Find::name =~ /\.pm$/;
                         (my $path = $File::Find::name) =~ s#^\\./##;
                         push @files, $path;
-                    },
+                    }},
                     $sp );
-                chdir $cwd;
+                #chdir $cwd;
 
                 # foreach one we've found 
                 foreach my $file (@files) {
@@ -379,6 +378,7 @@ sub import {
         # probably not necessary but hey ho
         my %plugins;
         for(@plugins) {
+            next if ($_ =~ /::::ISA::CACHE$/); 
             next if (keys %only   && !$only{$_}     );
             next unless (!defined $only || m!$only! );
 
@@ -426,7 +426,7 @@ sub list_packages {
             {
                 s!::$!!;
                 my @children = list_packages($pack.$_);
-                 push @packs, "$pack$_" unless @children or /^::/; 
+                push @packs, "$pack$_" unless @children or /^::/; 
                 push @packs, @children;
             }
             return @packs;

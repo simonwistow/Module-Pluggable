@@ -1,3 +1,9 @@
+2005-03-18 - 2.8 minor fixes
+
+    Patch from Marcus Thiesen to fix so ISA cache magic
+    Patch from Anthony D. Urso to get M::P to work under taint
+
+
 2005-02-14 - 2.7 Allow redefinition of search_path
 
     A patch from Barbie to allow you to do
