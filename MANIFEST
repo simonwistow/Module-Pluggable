@@ -9,17 +9,24 @@ lib/Module/Pluggable.pm
 t/01use.t
 t/02works.t
 t/03diffname.t
+t/04acmedir.t
+t/04acmedir_single.t
 t/04acmepath.t
+t/04acmepath_single.t
 t/05postpath.t
 t/06multipath.t
 t/07instantiate.t
 t/08nothing.t
 t/09require.t
 t/10innerpack.t
+t/10innerpack_inner.t
+t/10innerpack_noinner.t
+t/10innerpack_override.t
 t/11usetwice.t
 t/12only.t
 t/13except.t
 t/14package.t
+t/acme/Acme/MyTest/Plugin/Foo.pm
 t/lib/Acme/MyTest/Plugin/Foo.pm
 t/lib/MyTest/Extend/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Bar.pm
@@ -27,4 +34,5 @@ t/lib/MyTest/Plugin/Foo.pm
 t/lib/MyTest/Plugin/Quux/Foo.pm
 t/lib/InnerTest/Plugin/Foo.pm
 t/plugins/test.plugin
+
 

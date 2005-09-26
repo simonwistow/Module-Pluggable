@@ -14,7 +14,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '2.2';
+$VERSION = '2.3';
 
 =pod
 
@@ -66,17 +66,17 @@ and then later ...
 Or if you want to look in another namespace
 
     package MyClass;
-    use Module::Pluggable (search_path => ['Acme::MyClass::Plugin', 'MyClass::Extend']);
+    use Module::Pluggable search_path => ['Acme::MyClass::Plugin', 'MyClass::Extend'];
 
 or directory 
 
-    use Module::Pluggable (search_dirs => ['mylibs/Foo']);
+    use Module::Pluggable search_dirs => ['mylibs/Foo'];
 
 
 Or if you want to instantiate each plugin rather than just return the name
 
     package MyClass;
-    use Module::Pluggable (instantiate => 'new');
+    use Module::Pluggable instantiate => 'new';
 
 and then
 
@@ -88,7 +88,13 @@ and then
 alternatively you can just require the module without instantiating it
 
     package MyClass;
-    use Module::Pluggable (require => 1);
+    use Module::Pluggable require => 1;
+
+since requiring automatically searches inner packages, which may not be desirable, you can turn this off
+
+
+	package MyClass;
+	use Module::Pluggable require => 1, inner => 0;
 
 
 =head1 INNER PACKAGES
@@ -130,6 +136,11 @@ The default is 'undef' i.e just return the class name.
 =head2 require
 
 Just require the class, don't instantiate (overrides 'instantiate');
+
+=head2 inner
+
+If set to 0 will B<not> search inner packages. 
+If set to 1 will override C<require>.
 
 =head2 only
 
@@ -174,7 +185,7 @@ None known.
 
 =head1 SEE ALSO
 
-L<File::Spec>, L<File::Find::Rule>, L<File::Basename>, L<Class::Factory::Util>
+L<File::Spec>, L<File::Find>, L<File::Basename>, L<Class::Factory::Util>, L<Module::Pluggable::Ordered>
 
 =cut 
 
@@ -182,6 +193,15 @@ L<File::Spec>, L<File::Find::Rule>, L<File::Basename>, L<Class::Factory::Util>
 sub import {
     my $class   = shift;
     my %opts    = @_;
+
+	# override 'require'
+	$opts{'require'} = 1 if $opts{'inner'};
+
+
+	# automatically turn a scalr search path or namespace into a arrayref
+	for (qw(search_path search_dirs)) {
+		$opts{$_} = [ $opts{$_} ] if exists $opts{$_} && !ref($opts{$_});
+	}
 
 
     # the default name for the method is 'plugins'
@@ -244,7 +264,6 @@ sub import {
                 # foreach one we've found 
                 foreach my $file (@files) {
 					next unless $file =~ m!\.pm$!;
-					print "FILE = $file\n";
                     # parse the file to get the name
                     my ($name, $directory) = fileparse($file, qr{\.pm});
                     $directory = abs2rel($directory, $sp);
@@ -269,15 +288,17 @@ sub import {
         # now add stuff that may have been in package
         # NOTE we should probably use all the stuff we've been given already
         # but then we can't unload it :(
-        for my $path (@{$opts{'search_path'}}) {
-            for (list_packages($path)) {
-                if (defined $opts{'instantiate'} || $opts{'require'}) {
-					eval "CORE::require $_";
-                    # *No warnings here* 
-                }    
-                push @plugins, $_;
-            }
-        }
+		unless (exists $opts{inner} && !$opts{inner}) {
+	        for my $path (@{$opts{'search_path'}}) {
+    	        for (list_packages($path)) {
+        	        if (defined $opts{'instantiate'} || $opts{'require'}) {
+						eval "CORE::require $_";
+                	    # *No warnings here* 
+                	}    
+                	push @plugins, $_;
+            	}
+        	}
+		}
 
         # push @plugins, map { print STDERR "$_\n"; $_->require } list_packages($_) for (@{$opts{'search_path'}});
 

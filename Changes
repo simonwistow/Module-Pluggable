@@ -1,3 +1,9 @@
+2004-10-27 - 2.3 Niceties
+
+	Allow you to explicitly stop looking for inner packages.
+	Made it nicer to have single element search_dirs and search_paths.
+	
+
 2004-10-08 - 2.2 Dieting
     
     Thanks to suggestion and patches from Adam Kennedy 
