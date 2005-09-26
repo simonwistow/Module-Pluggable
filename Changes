@@ -1,3 +1,8 @@
+2004-08-19 - 2.0 Working inner packages
+
+    As long as you have require or instantiate set then we'll also find
+    inner packages. Why I didn't fix this way back in 1.3 I don't know.
+
 2004-07-18 - 1.9 Add 'package' option
 
     This lets you install a method in another package's 

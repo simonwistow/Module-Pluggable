@@ -25,3 +25,6 @@ t/lib/MyTest/Extend/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Foo.pm
 t/lib/MyTest/Plugin/Quux/Foo.pm
+t/lib/InnerTest/Plugin/Foo.pm
+
+

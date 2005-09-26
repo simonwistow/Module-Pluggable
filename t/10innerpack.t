@@ -2,24 +2,23 @@
 
 use strict;
 use lib 't/lib';
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 
-SKIP: {
-             skip "Until inner packages have been done properly", 2;
 
 my $t = InnerTest->new();
 
 my %plugins = map { $_ => 1 } $t->plugins;
 
-ok(keys %plugins);
-ok($plugins{'InnerTest::Plugin::Foo'});
+ok(keys %plugins, "Got some plugins");
+ok($plugins{'InnerTest::Plugin::Foo'}, "Got Foo");
+ok($plugins{'InnerTest::Plugin::Bar'}, "Got Bar - the inner package");
 
 
 
 package InnerTest;
 use strict;
-use Module::Pluggable;
+use Module::Pluggable require => 1;
 use base qw(Module::Pluggable);
 
 
@@ -29,9 +28,6 @@ sub new {
 
 }
 
-}
-
-package InnerTest::Plugin::Foo;
 
 1;
 

@@ -14,7 +14,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '1.9';
+$VERSION = '2.0';
 
 =pod
 
@@ -93,6 +93,13 @@ alternatively you can just require the module without instantiating it
     use Module::Pluggable (require => 1);
 
 
+=head1 INNER PACKAGES
+
+If you have, for example, a file B<lib/Something/Plugin/Foo.pm> that
+contains package definitions for both C<Something::Plugin::Foo> and 
+C<Something::Plugin::Bar> then as long as you either have either 
+the B<require> or B<instantiate> option set then we'll also find 
+C<Something::Plugin::Bar>. Nifty!
 
 =head1 OPTIONS
 
@@ -241,27 +248,18 @@ sub import {
         # but it's not working at the moment
 
         # some inner packages can only be found if we use other stuff first
-        # if (defined $opts{'instantiate'} || $opts{'require'}) {
-        #    for (@plugins) {
-        #        $_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
-        #    }
-        #}
+        if (defined $opts{'instantiate'} || $opts{'require'}) {
+            for (@plugins) {
+                $_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
+            }
+        }
 
 
 
         # now add stuff that may have been in package
         # NOTE we should probably use all the stuff we've been given already
         # but then we can't unload it :(
-        # foreach my $searchpath (@{$opts{'search_path'}}) 
-        # {
-        #    for (list_packages("${searchpath}::")) {
-        #        s!::$!!;
-        #        if (defined $opts{'instantiate'} || $opts{'require'}) {
-        #            $_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
-        #        }
-        #       push @plugins, $_;
-        #    }
-        #}
+        push @plugins, list_packages($_) for (@{$opts{'search_path'}});
 
         
         # return blank unless we've found anything
@@ -282,7 +280,7 @@ sub import {
         if (defined $opts{'instantiate'} || $opts{'require'}) {
             my $method = $opts{'instantiate'};
             return map {
-                            $_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
+                            #$_->require or carp "Couldn't require $_ : $UNIVERSAL::require::ERROR";
                             # instantiate with the options passed into the sub
                             # unless just requiring
                             $opts{require} ? $_ : $_->$method(@_);
@@ -298,11 +296,14 @@ sub import {
 
 
 sub list_packages {
-            my $pack = shift;
-            my @packs;
+            my $pack = shift; $pack .= "::" unless $pack =~ m!::$!;
+
             no strict 'refs';
+
+            my @packs;
             for (grep !/^main::$/, grep /::$/, keys %{$pack})
             {
+                s!::$!!;
                 push @packs, "$pack$_";
                 push @packs, list_packages($pack.$_)
             }

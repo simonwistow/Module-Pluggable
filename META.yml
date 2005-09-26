@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: Module-Pluggable
-version: 1.9
+version: 2.0
 author:
   - Simon Wistow <simon@thegestalt.org>
 abstract: |-
@@ -15,5 +15,5 @@ requires:
 provides:
   Module::Pluggable:
     file: lib/Module/Pluggable.pm
-    version: 1.9
+    version: 2.0
 generated_by: Module::Build version 0.25
