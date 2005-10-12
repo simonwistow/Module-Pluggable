@@ -39,11 +39,13 @@ and then later ...
 
 =head1 EXAMPLE
 
-Why would you wnat to do this? Say you have somethign that wants to pass an
+Why would you want to do this? Say you have something that wants to pass an
 object to a number of different plugins in turn. For example you may 
 want to extract meta-data from every email you get sent and do something
 with it. Plugins make sense here because then you can keep adding new 
-meta data. For that you might want to do something like
+meta data parsers and all the logic and docs for each one will be 
+self contained and new handlers are easy to add without changing the 
+core code. For that, you might do something like ...
 
     package Email::Examiner;
 
@@ -64,10 +66,11 @@ meta data. For that you might want to do something like
 
 
 
-And all the plugins will get a chance in turn to look at it.
+.. and all the plugins will get a chance in turn to look at it.
 
 This can be trivally extended so that plugins could save the email
-somewhere. Have it so that the C<examine> method returns C<1> if 
+somewhere and then no other plugin should try and do that. 
+Simply have it so that the C<examine> method returns C<1> if 
 it has saved the email somewhere. You might also wnat to be paranoid
 and check to see if the plugin has an C<examine> method.
 
