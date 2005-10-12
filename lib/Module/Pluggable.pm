@@ -37,6 +37,49 @@ and then later ...
     # returns the names of all plugins installed under MyClass::Plugin::*
     my @plugins = $mc->plugins(); 
 
+=head1 EXAMPLE
+
+Why would you wnat to do this? Say you have somethign that wants to pass an
+object to a number of different plugins in turn. For example you may 
+want to extract meta-data from every email you get sent and do something
+with it. Plugins make sense here because then you can keep adding new 
+meta data. For that you might want to do something like
+
+    package Email::Examiner;
+
+    use strict;
+    use Email::Simple;
+    use Module::Pluggable require => 1;
+
+    sub handle_email {
+        my $self  = shift;
+        my $email = shift;
+
+        foreach my $plugin ($self->plugins) {
+            $plugin->examine($email);
+        }
+
+        return 1;
+    }
+
+
+
+And all the plugins will get a chance in turn to look at it.
+
+This can be trivally extended so that plugins could save the email
+somewhere. Have it so that the C<examine> method returns C<1> if 
+it has saved the email somewhere. You might also wnat to be paranoid
+and check to see if the plugin has an C<examine> method.
+
+        foreach my $plugin ($self->plugins) {
+             next unless $plugin->can('examine');
+            last if     $plugin->examine($email);
+        }
+
+
+And so on. The sky's the limit.
+
+
 =head1 DESCRIPTION
 
 Provides a simple but, hopefully, extensible way of having 'plugins' for 
