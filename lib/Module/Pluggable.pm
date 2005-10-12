@@ -72,7 +72,7 @@ it has saved the email somewhere. You might also wnat to be paranoid
 and check to see if the plugin has an C<examine> method.
 
         foreach my $plugin ($self->plugins) {
-             next unless $plugin->can('examine');
+            next unless $plugin->can('examine');
             last if     $plugin->examine($email);
         }
 
