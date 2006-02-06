@@ -1,3 +1,7 @@
+2006-02-06 - 2.97
+    Patch from Ricardo Signes to fix bug where File::Find  
+    is not topic-safe in 5.6.1
+
 2005-09-01 - 2.96 
     Patch from Alex Vandiver to sort an edge case where the package 
     stash to contain "::"

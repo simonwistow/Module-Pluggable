@@ -13,7 +13,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '2.96';
+$VERSION = '2.97';
 
 =pod
 
@@ -338,13 +338,16 @@ sub import {
                 # this isn't perfect and won't find multiple plugins per file
                 #my $cwd = Cwd::getcwd;
                 my @files = ();
-                File::Find::find( { no_chdir => 1, wanted =>
-                    sub { # Inlined from File::Find::Rule C< name => '*.pm' >
-                        return unless $File::Find::name =~ /\.pm$/;
-                        (my $path = $File::Find::name) =~ s#^\\./##;
-                        push @files, $path;
-                    }},
-                    $sp );
+                { # for the benefit of perl 5.6.1's Find, localize topic
+                  local $_;
+                  File::Find::find( { no_chdir => 1, wanted =>
+                      sub { # Inlined from File::Find::Rule C< name => '*.pm' >
+                          return unless $File::Find::name =~ /\.pm$/;
+                          (my $path = $File::Find::name) =~ s#^\\./##;
+                          push @files, $path;
+                      }},
+                      $sp );
+                }
                 #chdir $cwd;
 
                 # foreach one we've found 

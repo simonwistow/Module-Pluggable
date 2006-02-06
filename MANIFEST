@@ -32,6 +32,7 @@ t/13except.t
 t/13exceptarray.t
 t/13exceptregex.t
 t/14package.t
+t/15topicsafe.t
 t/acme/Acme/MyTest/Plugin/Foo.pm
 t/lib/Acme/MyTest/Plugin/Foo.pm
 t/lib/MyTest/Extend/Plugin/Bar.pm
