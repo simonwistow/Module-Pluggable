@@ -234,6 +234,16 @@ This is for use by extension modules which build on C<Module::Pluggable>:
 passing a C<package> option allows you to place the plugin method in a
 different package other than your own.
 
+=head2 file_regex
+
+By default C<Module::Pluggable> only looks for I<.pm> files.
+
+By supplying a new C<file_regex> then you can change this behaviour e.g
+
+    file_regex => qr/\.plugin$/
+
+
+
 =head1 METHODs
 
 =head2 search_path
@@ -292,6 +302,9 @@ sub import {
 
     my ($package, $filename) = caller;
 
+
+    my $file_regex = $opts{'file_regex'} || qr/\.pm$/;
+
     # automatically turn a scalar search path or namespace into a arrayref
     for (qw(search_path search_dirs)) {
         $opts{$_} = [ $opts{$_} ] if exists $opts{$_} && !ref($opts{$_});
@@ -342,7 +355,7 @@ sub import {
                   local $_;
                   File::Find::find( { no_chdir => 1, wanted =>
                       sub { # Inlined from File::Find::Rule C< name => '*.pm' >
-                          return unless $File::Find::name =~ /\.pm$/;
+                          return unless $File::Find::name =~ /$file_regex/;
                           (my $path = $File::Find::name) =~ s#^\\./##;
                           push @files, $path;
                       }},
@@ -366,7 +379,10 @@ sub import {
                       $directory = "";
                     }
                     my $plugin = join "::", splitdir catdir($searchpath, $directory, $name);
-                    if (defined $opts{'instantiate'} || $opts{'require'}) { 
+
+                    next unless $plugin =~ m!(?:[a-z\d]+)[a-z\d]!i;
+ 
+                   if (defined $opts{'instantiate'} || $opts{'require'}) { 
                         
                         eval "CORE::require $plugin";
                         carp "Couldn't require $plugin : $@" if $@;

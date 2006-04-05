@@ -1,6 +1,6 @@
 ---
 name: Module-Pluggable
-version: 2.96
+version: 2.97
 author:
   - Simon Wistow <simon@thegestalt.org>
 abstract: automatically give your module the ability to have plugins
@@ -12,5 +12,5 @@ requires:
 provides:
   Module::Pluggable:
     file: lib/Module/Pluggable.pm
-    version: 2.96
-generated_by: Module::Build version 0.25
+    version: 2.97
+generated_by: Module::Build version 0.2611
