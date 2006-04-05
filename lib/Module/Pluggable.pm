@@ -13,7 +13,7 @@ use Carp qw(croak carp);
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '2.97';
+$VERSION = '2.98';
 
 =pod
 
@@ -336,9 +336,9 @@ sub import {
         unshift @SEARCHDIR, @{$opts{'search_dirs'}} if defined $opts{'search_dirs'};
 
 
+
         # go through our @INC
         foreach my $dir (@SEARCHDIR) {
-
             # and each directory in our search path
             foreach my $searchpath (@{$opts{'search_path'}}) {
                 # create the search directory in a cross platform goodness way
@@ -366,9 +366,10 @@ sub import {
                 # foreach one we've found 
                 foreach my $file (@files) {
                     # untaint the file; accept .pm only
-                    next unless ($file) = ($file =~ /(.*\.pm)$/); 
+                    next unless ($file) = ($file =~ /(.*$file_regex)$/); 
                     # parse the file to get the name
-                    my ($name, $directory) = fileparse($file, qr{\.pm$});
+                    my ($name, $directory) = fileparse($file, $file_regex);
+
                     $directory = abs2rel($directory, $sp);
                     # then create the class name in a cross platform way
                     $directory =~ s/^[a-z]://i if($^O =~ /MSWin32|dos/);       # remove volume

@@ -1,3 +1,6 @@
+2006-04-05 - 2.98
+    Allow the ability to provide the file matching regex
+
 2006-02-06 - 2.97
     Patch from Ricardo Signes to fix bug where File::Find  
     is not topic-safe in 5.6.1

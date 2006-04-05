@@ -33,8 +33,12 @@ t/13exceptarray.t
 t/13exceptregex.t
 t/14package.t
 t/15topicsafe.t
+t/16different_extension.t
 t/acme/Acme/MyTest/Plugin/Foo.pm
 t/lib/Acme/MyTest/Plugin/Foo.pm
+t/lib/ExtTest/Plugin/Bar.pm
+t/lib/ExtTest/Plugin/Foo.pm
+t/lib/ExtTest/Plugin/Quux/Foo.pm
 t/lib/MyTest/Extend/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Foo.pm
