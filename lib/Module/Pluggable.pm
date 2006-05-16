@@ -15,18 +15,20 @@ sub import {
     my $class        = shift;
     my %opts         = @_;
 
-	my ($package)    = caller;
+	my ($pkg, $file) = caller; 
+    $opts{filename}  = $file;
+    $opts{package}   = $pkg;
     # the default name for the method is 'plugins'
     my $sub          = $opts{'sub_name'}  || 'plugins';
     # get our package 
-    my ($pkg)        = $opts{'package'} || $package;
+    my ($package)    = $opts{'package'} || $pkg;
 
 	my $finder       = Module::Pluggable::Object->new(%opts);
     my $subroutine   = sub { return $finder->plugins(@_) };
 
     no strict 'refs';
     no warnings 'redefine';
-    *{"$pkg\::$sub"} = $subroutine;
+    *{"$package\::$sub"} = $subroutine;
 }
 
 1;

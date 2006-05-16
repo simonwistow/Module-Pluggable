@@ -22,6 +22,10 @@ sub plugins {
         my $self = shift;
 		my %opts = %$self;
 
+        my $file_regex = $opts{'file_regex'} || qr/\.pm$/;
+		my $filename   = $opts{'filename'};
+        my $pkg        = $opts{'package'};
+
         # default search path is '<Module>::<Name>::Plugin'
         $opts{'search_path'} = ["${pkg}::Plugin"] unless $opts{'search_path'}; 
 
