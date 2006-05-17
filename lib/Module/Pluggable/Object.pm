@@ -7,8 +7,6 @@ use File::Spec::Functions qw(splitdir catdir abs2rel);
 use Carp qw(croak carp);
 use Devel::InnerPackage;
 
-
-
 sub new {
 	my $class = shift;
 	my %opts  = @_;
@@ -22,9 +20,20 @@ sub plugins {
         my $self = shift;
 		my %opts = %$self;
 
+        # override 'require'
+        $opts{'require'} = 1 if $opts{'inner'};
+
         my $file_regex = $opts{'file_regex'} || qr/\.pm$/;
 		my $filename   = $opts{'filename'};
         my $pkg        = $opts{'package'};
+
+    	# automatically turn a scalar search path or namespace into a arrayref
+    	for (qw(search_path search_dirs)) {
+        	$opts{$_} = [ $opts{$_} ] if exists $opts{$_} && !ref($opts{$_});
+    	}
+
+
+
 
         # default search path is '<Module>::<Name>::Plugin'
         $opts{'search_path'} = ["${pkg}::Plugin"] unless $opts{'search_path'}; 
