@@ -129,7 +129,6 @@ sub search_directories {
 
 sub search_paths {
     my $self = shift;
-    my %opts = %$self;
     my $dir  = shift;
     my @plugins;
 
@@ -137,7 +136,7 @@ sub search_paths {
 
 
     # and each directory in our search path
-    foreach my $searchpath (@{$opts{'search_path'}}) {
+    foreach my $searchpath (@{$self->{'search_path'}}) {
         # create the search directory in a cross platform goodness way
         my $sp = catdir($dir, (split /::/, $searchpath));
         # if it doesn't exist or it's not a dir then skip it
@@ -180,9 +179,9 @@ sub search_paths {
 
                 next unless $plugin =~ m!(?:[a-z\d]+)[a-z\d]!i;
  
-                if (defined $opts{'instantiate'} || $opts{'require'}) { 
-                    eval "CORE::require $plugin";
-                    carp "Couldn't require $plugin : $@" if $@;
+                if (defined $self->{'instantiate'} || $self->{'require'}) { 
+                    my $err = $self->_require($plugin);
+                    carp "Couldn't require $plugin : $err" if $err;
                 }
                 push @plugins, $plugin;
              }
@@ -190,7 +189,7 @@ sub search_paths {
              # now add stuff that may have been in package
              # NOTE we should probably use all the stuff we've been given already
              # but then we can't unload it :(
-             push @plugins, $self->handle_innerpackages($searchpath) unless (exists $opts{inner} && !$opts{inner});
+             push @plugins, $self->handle_innerpackages($searchpath) unless (exists $self->{inner} && !$self->{inner});
     } # foreach $searchpath
 
     return @plugins;
@@ -202,15 +201,19 @@ sub handle_innerpackages {
     my @plugins;
 
     for (Devel::InnerPackage::list_packages($path)) {
-        if (defined $self->{'instantiate'} || $self->{'require'}) {
-            eval "CORE::require $_";
-            # *No warnings here* 
-            # next if $@;
-        }
+        $self->_require($_) if (defined $self->{'instantiate'} || $self->{'require'});
         push @plugins, $_;
     } # for list packages
     return @plugins;
 
+}
+
+
+sub _require {
+    my $self = shift;
+    my $pack = shift;
+    eval "CORE::require $pack";
+    return $@;
 }
 
 
