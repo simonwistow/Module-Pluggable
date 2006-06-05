@@ -84,10 +84,6 @@ sub plugins {
         }
 
 
-
-
-
-
         # remove duplicates
         # probably not necessary but hey ho
         my %plugins;
@@ -142,23 +138,7 @@ sub search_paths {
         # if it doesn't exist or it's not a dir then skip it
         next unless ( -e $sp && -d _ ); # Use the cached stat the second time
 
-
-        # find all the .pm files in it
-        # this isn't perfect and won't find multiple plugins per file
-            #my $cwd = Cwd::getcwd;
-            my @files = ();
-            { # for the benefit of perl 5.6.1's Find, localize topic
-                  local $_;
-                  File::Find::find( { no_chdir => 1, wanted =>
-                      sub { # Inlined from File::Find::Rule C< name => '*.pm' >
-                          return unless $File::Find::name =~ /$file_regex/;
-                          (my $path = $File::Find::name) =~ s#^\\./##;
-                          push @files, $path;
-                      }},
-                      $sp );
-             }
-             #chdir $cwd;
-
+        my @files = $self->find_files($sp);
 
              # foreach one we've found 
              foreach my $file (@files) {
@@ -195,6 +175,32 @@ sub search_paths {
     return @plugins;
 }
 
+sub find_files {
+    my $self         = shift;
+    my $search_path  = shift;
+    my $file_regex   = $self->{'file_regex'} || qr/\.pm$/;
+
+
+    # find all the .pm files in it
+    # this isn't perfect and won't find multiple plugins per file
+    #my $cwd = Cwd::getcwd;
+    my @files = ();
+    { # for the benefit of perl 5.6.1's Find, localize topic
+        local $_;
+        File::Find::find( { no_chdir => 1, 
+                           wanted => sub { 
+                             # Inlined from File::Find::Rule C< name => '*.pm' >
+                             return unless $File::Find::name =~ /$file_regex/;
+                             (my $path = $File::Find::name) =~ s#^\\./##;
+                             push @files, $path;
+                           }
+                      }, $search_path );
+    }
+    #chdir $cwd;
+    return @files;
+
+}
+
 sub handle_innerpackages {
     my $self = shift;
     my $path = shift;
@@ -223,7 +229,7 @@ sub _require {
 
 =head1 NAME
 
-Module::Pluggable - automatically give your module the ability to have plugins
+Module::Pluggable::Object - automatically give your module the ability to have plugins
 
 =head1 SYNOPSIS
 
@@ -231,61 +237,10 @@ Module::Pluggable - automatically give your module the ability to have plugins
 Simple use Module::Pluggable -
 
     package MyClass;
-    use Module::Pluggable;
+    use Module::Pluggable::Object;
     
-
-and then later ...
-
-    use MyClass;
-    my $mc = MyClass->new();
-    # returns the names of all plugins installed under MyClass::Plugin::*
-    my @plugins = $mc->plugins(); 
-
-=head1 EXAMPLE
-
-Why would you want to do this? Say you have something that wants to pass an
-object to a number of different plugins in turn. For example you may 
-want to extract meta-data from every email you get sent and do something
-with it. Plugins make sense here because then you can keep adding new 
-meta data parsers and all the logic and docs for each one will be 
-self contained and new handlers are easy to add without changing the 
-core code. For that, you might do something like ...
-
-    package Email::Examiner;
-
-    use strict;
-    use Email::Simple;
-    use Module::Pluggable require => 1;
-
-    sub handle_email {
-        my $self  = shift;
-        my $email = shift;
-
-        foreach my $plugin ($self->plugins) {
-            $plugin->examine($email);
-        }
-
-        return 1;
-    }
-
-
-
-.. and all the plugins will get a chance in turn to look at it.
-
-This can be trivally extended so that plugins could save the email
-somewhere and then no other plugin should try and do that. 
-Simply have it so that the C<examine> method returns C<1> if 
-it has saved the email somewhere. You might also wnat to be paranoid
-and check to see if the plugin has an C<examine> method.
-
-        foreach my $plugin ($self->plugins) {
-            next unless $plugin->can('examine');
-            last if     $plugin->examine($email);
-        }
-
-
-And so on. The sky's the limit.
-
+    my $finder = Module::Pluggable::Object->new(%opts);
+    print "My plugins are: ".join(", ", $finder->plugins)."\n";
 
 =head1 DESCRIPTION
 
@@ -298,187 +253,13 @@ looks through a search path for .pm files and turn those into class names.
 
 Optionally it instantiates those classes for you.
 
-=head1 ADVANCED USAGE
-
-    
-Alternatively, if you don't want to use 'plugins' as the method ...
-    
-    package MyClass;
-    use Module::Pluggable sub_name => 'foo';
-
-
-and then later ...
-
-    my @plugins = $mc->foo();
-
-
-Or if you want to look in another namespace
-
-    package MyClass;
-    use Module::Pluggable search_path => ['Acme::MyClass::Plugin', 'MyClass::Extend'];
-
-or directory 
-
-    use Module::Pluggable search_dirs => ['mylibs/Foo'];
-
-
-Or if you want to instantiate each plugin rather than just return the name
-
-    package MyClass;
-    use Module::Pluggable instantiate => 'new';
-
-and then
-
-    # whatever is passed to 'plugins' will be passed 
-    # to 'new' for each plugin 
-    my @plugins = $mc->plugins(@options); 
-
-
-alternatively you can just require the module without instantiating it
-
-    package MyClass;
-    use Module::Pluggable require => 1;
-
-since requiring automatically searches inner packages, which may not be desirable, you can turn this off
-
-
-    package MyClass;
-    use Module::Pluggable require => 1, inner => 0;
-
-
-You can limit the plugins loaded using the except option, either as a string,
-array ref or regex
-
-    package MyClass;
-    use Module::Pluggable except => 'MyClass::Plugin::Foo';
-
-or
-
-    package MyClass;
-    use Module::Pluggable except => ['MyClass::Plugin::Foo', 'MyClass::Plugin::Bar'];
-
-or
-
-    package MyClass;
-    use Module::Pluggable except => qr/^MyClass::Plugin::(Foo|Bar)$/;
-
-
-and similarly for only which will only load plugins which match.
-
-Remember you can use the module more than once
-
-    package MyClass;
-    use Module::Pluggable search_path => 'MyClass::Filters' sub_name => 'filters';
-    use Module::Pluggable search_path => 'MyClass::Plugins' sub_name => 'plugins';
-
-and then later ...
-
-    my @filters = $self->filters;
-    my @plugins = $self->plugins;
-
-=head1 INNER PACKAGES
-
-If you have, for example, a file B<lib/Something/Plugin/Foo.pm> that
-contains package definitions for both C<Something::Plugin::Foo> and 
-C<Something::Plugin::Bar> then as long as you either have either 
-the B<require> or B<instantiate> option set then we'll also find 
-C<Something::Plugin::Bar>. Nifty!
-
-=head1 OPTIONS
-
-You can pass a hash of options when importing this module.
-
-The options can be ...
-
-=head2 sub_name
-
-The name of the subroutine to create in your namespace. 
-
-By default this is 'plugins'
-
-=head2 search_path
-
-An array ref of namespaces to look in. 
-
-=head2 search_dirs 
-
-An array ref of directorys to look in before @INC.
-
-=head2 instantiate
-
-Call this method on the class. In general this will probably be 'new'
-but it can be whatever you want. Whatever arguments are passed to 'plugins' 
-will be passed to the method.
-
-The default is 'undef' i.e just return the class name.
-
-=head2 require
-
-Just require the class, don't instantiate (overrides 'instantiate');
-
-=head2 inner
-
-If set to 0 will B<not> search inner packages. 
-If set to 1 will override C<require>.
-
-=head2 only
-
-Takes a string, array ref or regex describing the names of the only plugins to 
-return. Whilst this may seem perverse ... well, it is. But it also 
-makes sense. Trust me.
-
-=head2 except
-
-Similar to C<only> it takes a description of plugins to exclude 
-from returning. This is slightly less perverse.
-
-=head2 package
-
-This is for use by extension modules which build on C<Module::Pluggable>:
-passing a C<package> option allows you to place the plugin method in a
-different package other than your own.
-
-=head2 file_regex
-
-By default C<Module::Pluggable> only looks for I<.pm> files.
-
-By supplying a new C<file_regex> then you can change this behaviour e.g
-
-    file_regex => qr/\.plugin$/
-
-
-
-=head1 METHODs
-
-=head2 search_path
-
-The method C<search_path> is exported into you namespace as well. 
-You can call that at any time to change or replace the 
-search_path.
-
-    $self->search_path( add => "New::Path" ); # add
-    $self->search_path( new => "New::Path" ); # replace
-
-
-
-=head1 FUTURE PLANS
-
-This does everything I need and I can't really think of any other 
-features I want to add. Famous last words of course
-
-Recently tried fixed to find inner packages and to make it 
-'just work' with PAR but there are still some issues.
-
-
-However suggestions (and patches) are welcome.
-
 =head1 AUTHOR
 
 Simon Wistow <simon@thegestalt.org>
 
 =head1 COPYING
 
-Copyright, 2003 Simon Wistow
+Copyright, 2006 Simon Wistow
 
 Distributed under the same terms as Perl itself.
 
@@ -488,7 +269,7 @@ None known.
 
 =head1 SEE ALSO
 
-L<File::Spec>, L<File::Find>, L<File::Basename>, L<Class::Factory::Util>, L<Module::Pluggable::Ordered>
+L<Module::Pluggable>
 
 =cut 
 
