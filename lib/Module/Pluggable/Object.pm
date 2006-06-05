@@ -158,11 +158,10 @@ sub search_paths {
             my $plugin = join "::", splitdir catdir($searchpath, $directory, $name);
 
             next unless $plugin =~ m!(?:[a-z\d]+)[a-z\d]!i;
- 
-            if (defined $self->{'instantiate'} || $self->{'require'}) { 
-                my $err = $self->_require($plugin);
-                carp "Couldn't require $plugin : $err" if $err;
-            }
+
+            eval { $self->handle_finding_plugin($plugin) };
+            carp "Couldn't require $plugin : $@" if $@;
+             
             push @plugins, $plugin;
         }
 
@@ -173,6 +172,14 @@ sub search_paths {
     } # foreach $searchpath
 
     return @plugins;
+}
+
+sub handle_finding_plugin {
+    my $self   = shift;
+    my $plugin = shift;
+
+    return unless (defined $self->{'instantiate'} || $self->{'require'}); 
+       $self->_require($plugin);
 }
 
 sub find_files {
@@ -206,10 +213,11 @@ sub handle_innerpackages {
     my $path = shift;
     my @plugins;
 
-    for (Devel::InnerPackage::list_packages($path)) {
-        $self->_require($_) if (defined $self->{'instantiate'} || $self->{'require'});
-        push @plugins, $_;
-    } # for list packages
+    foreach my $plugin (Devel::InnerPackage::list_packages($path)) {
+        eval { $self->handle_finding_plugin($plugin) };
+        # next if $@;
+        push @plugins, $plugin;
+    }
     return @plugins;
 
 }
