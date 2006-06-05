@@ -6,7 +6,9 @@ MANIFEST.SKIP
 META.yml
 Makefile.PL
 README
+lib/Devel/InnerPackage.pm
 lib/Module/Pluggable.pm
+lib/Module/Pluggable/Object.pm
 t/01use.t
 t/02alsoworks.t
 t/02works.t
@@ -36,9 +38,9 @@ t/15topicsafe.t
 t/16different_extension.t
 t/acme/Acme/MyTest/Plugin/Foo.pm
 t/lib/Acme/MyTest/Plugin/Foo.pm
-t/lib/ExtTest/Plugin/Bar.pm
-t/lib/ExtTest/Plugin/Foo.pm
-t/lib/ExtTest/Plugin/Quux/Foo.pm
+t/lib/ExtTest/Plugin/Bar.plugin
+t/lib/ExtTest/Plugin/Foo.plugin
+t/lib/ExtTest/Plugin/Quux/Foo.plugin
 t/lib/MyTest/Extend/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Foo.pm
