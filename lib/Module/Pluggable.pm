@@ -329,7 +329,7 @@ Simon Wistow <simon@thegestalt.org>
 
 =head1 COPYING
 
-Copyright, 2003 Simon Wistow
+Copyright, 2006 Simon Wistow
 
 Distributed under the same terms as Perl itself.
 
