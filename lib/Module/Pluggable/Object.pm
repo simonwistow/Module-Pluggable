@@ -9,10 +9,10 @@ use Devel::InnerPackage;
 use Data::Dumper;
 
 sub new {
-	my $class = shift;
-	my %opts  = @_;
+    my $class = shift;
+    my %opts  = @_;
 
-	return bless \%opts, $class;
+    return bless \%opts, $class;
 
 }
 
@@ -23,13 +23,13 @@ sub plugins {
         # override 'require'
         $self->{'require'} = 1 if $self->{'inner'};
 
-		my $filename   = $self->{'filename'};
+        my $filename   = $self->{'filename'};
         my $pkg        = $self->{'package'};
 
-    	# automatically turn a scalar search path or namespace into a arrayref
-    	for (qw(search_path search_dirs)) {
-        	$self->{$_} = [ $self->{$_} ] if exists $self->{$_} && !ref($self->{$_});
-    	}
+        # automatically turn a scalar search path or namespace into a arrayref
+        for (qw(search_path search_dirs)) {
+            $self->{$_} = [ $self->{$_} ] if exists $self->{$_} && !ref($self->{$_});
+        }
 
 
 
@@ -38,7 +38,7 @@ sub plugins {
         $self->{'search_path'} = ["${pkg}::Plugin"] unless $self->{'search_path'}; 
 
 
-		#my %opts = %$self;
+        #my %opts = %$self;
 
 
         # check to see if we're running under test
@@ -48,9 +48,7 @@ sub plugins {
         unshift @SEARCHDIR, @{$self->{'search_dirs'}} if defined $self->{'search_dirs'};
 
 
-		my @plugins = $self->search_directories(@SEARCHDIR);
-
-
+        my @plugins = $self->search_directories(@SEARCHDIR);
 
         # push @plugins, map { print STDERR "$_\n"; $_->require } list_packages($_) for (@{$self->{'search_path'}});
         
@@ -115,31 +113,42 @@ sub plugins {
 }
 
 sub search_directories {
-		my $self      = shift;
-		my %opts      = %$self;
-		my @SEARCHDIR = @_;
-
-		#die Dumper(\%opts);
-
-        my $file_regex = $opts{'file_regex'} || qr/\.pm$/;
-
-		my @plugins;
-
-        # go through our @INC
-        foreach my $dir (@SEARCHDIR) {
-            # and each directory in our search path
-            foreach my $searchpath (@{$opts{'search_path'}}) {
-                # create the search directory in a cross platform goodness way
-                my $sp = catdir($dir, (split /::/, $searchpath));
-                # if it doesn't exist or it's not a dir then skip it
-                next unless ( -e $sp && -d _ ); # Use the cached stat the second time
+    my $self      = shift;
+    my @SEARCHDIR = @_;
 
 
-                # find all the .pm files in it
-                # this isn't perfect and won't find multiple plugins per file
-                #my $cwd = Cwd::getcwd;
-                my @files = ();
-                { # for the benefit of perl 5.6.1's Find, localize topic
+    my @plugins;
+    # go through our @INC
+    foreach my $dir (@SEARCHDIR) {
+        push @plugins, $self->search_paths($dir);
+    }
+
+    return @plugins;
+}
+
+
+sub search_paths {
+    my $self = shift;
+    my %opts = %$self;
+    my $dir  = shift;
+    my @plugins;
+
+    my $file_regex = $self->{'file_regex'} || qr/\.pm$/;
+
+
+    # and each directory in our search path
+    foreach my $searchpath (@{$opts{'search_path'}}) {
+        # create the search directory in a cross platform goodness way
+        my $sp = catdir($dir, (split /::/, $searchpath));
+        # if it doesn't exist or it's not a dir then skip it
+        next unless ( -e $sp && -d _ ); # Use the cached stat the second time
+
+
+        # find all the .pm files in it
+        # this isn't perfect and won't find multiple plugins per file
+            #my $cwd = Cwd::getcwd;
+            my @files = ();
+            { # for the benefit of perl 5.6.1's Find, localize topic
                   local $_;
                   File::Find::find( { no_chdir => 1, wanted =>
                       sub { # Inlined from File::Find::Rule C< name => '*.pm' >
@@ -148,55 +157,52 @@ sub search_directories {
                           push @files, $path;
                       }},
                       $sp );
+             }
+             #chdir $cwd;
+
+
+             # foreach one we've found 
+             foreach my $file (@files) {
+                # untaint the file; accept .pm only
+                next unless ($file) = ($file =~ /(.*$file_regex)$/); 
+                # parse the file to get the name
+                my ($name, $directory) = fileparse($file, $file_regex);
+
+                $directory = abs2rel($directory, $sp);
+                # then create the class name in a cross platform way
+                $directory =~ s/^[a-z]://i if($^O =~ /MSWin32|dos/);       # remove volume
+                if ($directory) {
+                    ($directory) = ($directory =~ /(.*)/);
+                } else {
+                    $directory = "";
                 }
-                #chdir $cwd;
+                my $plugin = join "::", splitdir catdir($searchpath, $directory, $name);
 
-
-                # foreach one we've found 
-                foreach my $file (@files) {
-                    # untaint the file; accept .pm only
-                    next unless ($file) = ($file =~ /(.*$file_regex)$/); 
-                    # parse the file to get the name
-                    my ($name, $directory) = fileparse($file, $file_regex);
-
-                    $directory = abs2rel($directory, $sp);
-                    # then create the class name in a cross platform way
-                    $directory =~ s/^[a-z]://i if($^O =~ /MSWin32|dos/);       # remove volume
-                    if ($directory) {
-                      ($directory) = ($directory =~ /(.*)/);
-                    }
-                    else {
-                      $directory = "";
-                    }
-                    my $plugin = join "::", splitdir catdir($searchpath, $directory, $name);
-
-                    next unless $plugin =~ m!(?:[a-z\d]+)[a-z\d]!i;
+                next unless $plugin =~ m!(?:[a-z\d]+)[a-z\d]!i;
  
-                   if (defined $opts{'instantiate'} || $opts{'require'}) { 
-                        
-                        eval "CORE::require $plugin";
-                        carp "Couldn't require $plugin : $@" if $@;
-                    }
-                    push @plugins, $plugin;
+                if (defined $opts{'instantiate'} || $opts{'require'}) { 
+                    eval "CORE::require $plugin";
+                    carp "Couldn't require $plugin : $@" if $@;
                 }
+                push @plugins, $plugin;
+             }
 
-                # now add stuff that may have been in package
-                # NOTE we should probably use all the stuff we've been given already
-                # but then we can't unload it :(
-                unless (exists $opts{inner} && !$opts{inner}) {
-                    for (Devel::InnerPackage::list_packages($searchpath)) {
-                        if (defined $opts{'instantiate'} || $opts{'require'}) {
-                            eval "CORE::require $_";
-                            # *No warnings here* 
-                            # next if $@;
-                        }    
-                        push @plugins, $_;
-                    } # for list packages
-                } # unless inner
-            } # foreach $searchpath
-        } # foreach $dir
+             # now add stuff that may have been in package
+             # NOTE we should probably use all the stuff we've been given already
+             # but then we can't unload it :(
+             unless (exists $opts{inner} && !$opts{inner}) {
+                 for (Devel::InnerPackage::list_packages($searchpath)) {
+                    if (defined $opts{'instantiate'} || $opts{'require'}) {
+                        eval "CORE::require $_";
+                        # *No warnings here* 
+                        # next if $@;
+                    }    
+                    push @plugins, $_;
+                } # for list packages
+            } # unless inner
+    } # foreach $searchpath
 
-	return @plugins;
+    return @plugins;
 }
 
 
