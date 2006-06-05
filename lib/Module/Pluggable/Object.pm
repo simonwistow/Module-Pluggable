@@ -140,36 +140,36 @@ sub search_paths {
 
         my @files = $self->find_files($sp);
 
-             # foreach one we've found 
-             foreach my $file (@files) {
-                # untaint the file; accept .pm only
-                next unless ($file) = ($file =~ /(.*$file_regex)$/); 
-                # parse the file to get the name
-                my ($name, $directory) = fileparse($file, $file_regex);
+        # foreach one we've found 
+        foreach my $file (@files) {
+            # untaint the file; accept .pm only
+            next unless ($file) = ($file =~ /(.*$file_regex)$/); 
+            # parse the file to get the name
+            my ($name, $directory) = fileparse($file, $file_regex);
 
-                $directory = abs2rel($directory, $sp);
-                # then create the class name in a cross platform way
-                $directory =~ s/^[a-z]://i if($^O =~ /MSWin32|dos/);       # remove volume
-                if ($directory) {
-                    ($directory) = ($directory =~ /(.*)/);
-                } else {
-                    $directory = "";
-                }
-                my $plugin = join "::", splitdir catdir($searchpath, $directory, $name);
+            $directory = abs2rel($directory, $sp);
+            # then create the class name in a cross platform way
+            $directory =~ s/^[a-z]://i if($^O =~ /MSWin32|dos/);       # remove volume
+            if ($directory) {
+                ($directory) = ($directory =~ /(.*)/);
+            } else {
+                $directory = "";
+            }
+            my $plugin = join "::", splitdir catdir($searchpath, $directory, $name);
 
-                next unless $plugin =~ m!(?:[a-z\d]+)[a-z\d]!i;
+            next unless $plugin =~ m!(?:[a-z\d]+)[a-z\d]!i;
  
-                if (defined $self->{'instantiate'} || $self->{'require'}) { 
-                    my $err = $self->_require($plugin);
-                    carp "Couldn't require $plugin : $err" if $err;
-                }
-                push @plugins, $plugin;
-             }
+            if (defined $self->{'instantiate'} || $self->{'require'}) { 
+                my $err = $self->_require($plugin);
+                carp "Couldn't require $plugin : $err" if $err;
+            }
+            push @plugins, $plugin;
+        }
 
-             # now add stuff that may have been in package
-             # NOTE we should probably use all the stuff we've been given already
-             # but then we can't unload it :(
-             push @plugins, $self->handle_innerpackages($searchpath) unless (exists $self->{inner} && !$self->{inner});
+        # now add stuff that may have been in package
+        # NOTE we should probably use all the stuff we've been given already
+        # but then we can't unload it :(
+        push @plugins, $self->handle_innerpackages($searchpath) unless (exists $self->{inner} && !$self->{inner});
     } # foreach $searchpath
 
     return @plugins;
