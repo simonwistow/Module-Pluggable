@@ -6,6 +6,7 @@ use File::Basename;
 use File::Spec::Functions qw(splitdir catdir abs2rel);
 use Carp qw(croak carp);
 use Devel::InnerPackage;
+use Data::Dumper;
 
 sub new {
 	my $class = shift;
@@ -18,37 +19,111 @@ sub new {
 
 sub plugins {
         my $self = shift;
-		my %opts = %$self;
 
         # override 'require'
-        $opts{'require'} = 1 if $opts{'inner'};
+        $self->{'require'} = 1 if $self->{'inner'};
 
-        my $file_regex = $opts{'file_regex'} || qr/\.pm$/;
-		my $filename   = $opts{'filename'};
-        my $pkg        = $opts{'package'};
+		my $filename   = $self->{'filename'};
+        my $pkg        = $self->{'package'};
 
     	# automatically turn a scalar search path or namespace into a arrayref
     	for (qw(search_path search_dirs)) {
-        	$opts{$_} = [ $opts{$_} ] if exists $opts{$_} && !ref($opts{$_});
+        	$self->{$_} = [ $self->{$_} ] if exists $self->{$_} && !ref($self->{$_});
     	}
 
 
 
 
         # default search path is '<Module>::<Name>::Plugin'
-        $opts{'search_path'} = ["${pkg}::Plugin"] unless $opts{'search_path'}; 
+        $self->{'search_path'} = ["${pkg}::Plugin"] unless $self->{'search_path'}; 
 
-        # predeclare
-        my @plugins;
 
-        
+		#my %opts = %$self;
+
+
         # check to see if we're running under test
         my @SEARCHDIR = exists $INC{"blib.pm"} && $filename =~ m!(^|/)blib/! ? grep {/blib/} @INC : @INC;
 
         # add any search_dir params
-        unshift @SEARCHDIR, @{$opts{'search_dirs'}} if defined $opts{'search_dirs'};
+        unshift @SEARCHDIR, @{$self->{'search_dirs'}} if defined $self->{'search_dirs'};
 
 
+		my @plugins = $self->search_directories(@SEARCHDIR);
+
+
+
+        # push @plugins, map { print STDERR "$_\n"; $_->require } list_packages($_) for (@{$self->{'search_path'}});
+        
+        # return blank unless we've found anything
+        return () unless @plugins;
+
+
+        # exceptions
+        my %only;   
+        my %except; 
+        my $only;
+        my $except;
+
+        if (defined $self->{'only'}) {
+            if (ref($self->{'only'}) eq 'ARRAY') {
+                %only   = map { $_ => 1 } @{$self->{'only'}};
+            } elsif (ref($self->{'only'}) eq 'Regexp') {
+                $only = $self->{'only'}
+            } elsif (ref($self->{'only'}) eq '') {
+                $only{$self->{'only'}} = 1;
+            }
+        }
+        
+
+        if (defined $self->{'except'}) {
+            if (ref($self->{'except'}) eq 'ARRAY') {
+                %except   = map { $_ => 1 } @{$self->{'except'}};
+            } elsif (ref($self->{'except'}) eq 'Regexp') {
+                $except = $self->{'except'}
+            } elsif (ref($self->{'except'}) eq '') {
+                $except{$self->{'except'}} = 1;
+            }
+        }
+
+
+
+
+
+
+        # remove duplicates
+        # probably not necessary but hey ho
+        my %plugins;
+        for(@plugins) {
+            next if (keys %only   && !$only{$_}     );
+            next unless (!defined $only || m!$only! );
+
+            next if (keys %except &&  $except{$_}   );
+            next if (defined $except &&  m!$except! );
+            $plugins{$_} = 1;
+        }
+
+        # are we instantiating or requring?
+        if (defined $self->{'instantiate'}) {
+            my $method = $self->{'instantiate'};
+            return map { ($_->can($method)) ? $_->$method(@_) : () } keys %plugins;
+        } else { 
+            # no? just return the names
+            return keys %plugins;
+        }
+
+
+}
+
+sub search_directories {
+		my $self      = shift;
+		my %opts      = %$self;
+		my @SEARCHDIR = @_;
+
+		#die Dumper(\%opts);
+
+        my $file_regex = $opts{'file_regex'} || qr/\.pm$/;
+
+		my @plugins;
 
         # go through our @INC
         foreach my $dir (@SEARCHDIR) {
@@ -75,6 +150,7 @@ sub plugins {
                       $sp );
                 }
                 #chdir $cwd;
+
 
                 # foreach one we've found 
                 foreach my $file (@files) {
@@ -120,70 +196,9 @@ sub plugins {
             } # foreach $searchpath
         } # foreach $dir
 
-
-
-
-        # push @plugins, map { print STDERR "$_\n"; $_->require } list_packages($_) for (@{$opts{'search_path'}});
-        
-        # return blank unless we've found anything
-        return () unless @plugins;
-
-
-        # exceptions
-        my %only;   
-        my %except; 
-        my $only;
-        my $except;
-
-        if (defined $opts{'only'}) {
-            if (ref($opts{'only'}) eq 'ARRAY') {
-                %only   = map { $_ => 1 } @{$opts{'only'}};
-            } elsif (ref($opts{'only'}) eq 'Regexp') {
-                $only = $opts{'only'}
-            } elsif (ref($opts{'only'}) eq '') {
-                $only{$opts{'only'}} = 1;
-            }
-        }
-        
-
-        if (defined $opts{'except'}) {
-            if (ref($opts{'except'}) eq 'ARRAY') {
-                %except   = map { $_ => 1 } @{$opts{'except'}};
-            } elsif (ref($opts{'except'}) eq 'Regexp') {
-                $except = $opts{'except'}
-            } elsif (ref($opts{'except'}) eq '') {
-                $except{$opts{'except'}} = 1;
-            }
-        }
-
-
-
-
-
-
-        # remove duplicates
-        # probably not necessary but hey ho
-        my %plugins;
-        for(@plugins) {
-            next if (keys %only   && !$only{$_}     );
-            next unless (!defined $only || m!$only! );
-
-            next if (keys %except &&  $except{$_}   );
-            next if (defined $except &&  m!$except! );
-            $plugins{$_} = 1;
-        }
-
-        # are we instantiating or requring?
-        if (defined $opts{'instantiate'}) {
-            my $method = $opts{'instantiate'};
-            return map { ($_->can($method)) ? $_->$method(@_) : () } keys %plugins;
-        } else { 
-            # no? just return the names
-            return keys %plugins;
-        }
-
-
+	return @plugins;
 }
+
 
 1;
 
