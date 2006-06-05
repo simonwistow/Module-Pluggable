@@ -1,3 +1,7 @@
+2006-06-06 - 3.0
+	Big refactor to split stuff up into more manageable pieces 
+
+
 2006-04-05 - 2.98
     Allow the ability to provide the file matching regex
 
