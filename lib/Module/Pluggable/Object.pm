@@ -190,19 +190,27 @@ sub search_paths {
              # now add stuff that may have been in package
              # NOTE we should probably use all the stuff we've been given already
              # but then we can't unload it :(
-             unless (exists $opts{inner} && !$opts{inner}) {
-                 for (Devel::InnerPackage::list_packages($searchpath)) {
-                    if (defined $opts{'instantiate'} || $opts{'require'}) {
-                        eval "CORE::require $_";
-                        # *No warnings here* 
-                        # next if $@;
-                    }    
-                    push @plugins, $_;
-                } # for list packages
-            } # unless inner
+             push @plugins, $self->handle_innerpackages($searchpath) unless (exists $opts{inner} && !$opts{inner});
     } # foreach $searchpath
 
     return @plugins;
+}
+
+sub handle_innerpackages {
+    my $self = shift;
+    my $path = shift;
+    my @plugins;
+
+    for (Devel::InnerPackage::list_packages($path)) {
+        if (defined $self->{'instantiate'} || $self->{'require'}) {
+            eval "CORE::require $_";
+            # *No warnings here* 
+            # next if $@;
+        }
+        push @plugins, $_;
+    } # for list packages
+    return @plugins;
+
 }
 
 
