@@ -1,3 +1,6 @@
+2006-06-07 - 3.01
+    Fix from Brian Cassidy in Devel::InnerPackage
+
 2006-06-06 - 3.0
 	Big refactor to split stuff up into more manageable pieces 
 

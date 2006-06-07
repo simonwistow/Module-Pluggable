@@ -1,9 +1,13 @@
 package Devel::InnerPackage;
 
 use strict;
-use vars qw($VERSION);
+use base qw(Exporter);
+use vars qw($VERSION @EXPORT_OK);
 
-$VERSION = '0.1';
+
+
+$VERSION = '0.2';
+@EXPORT_OK = qw(list_packages);
 
 =pod
 
@@ -15,6 +19,7 @@ Devel::InnerPackage - find all the inner packages of a package
 =head1 SYNOPSIS
 
     use Foo::Bar;
+	use Devel::innerPackages qw(list_packages);
 
     my @inner_packages = list_packages('Foo::Bar');
 
@@ -66,7 +71,7 @@ sub list_packages {
             {
                 s!::$!!;
                 my @children = list_packages($pack.$_);
-                push @packs, "$pack$_" unless @children or /^::/; 
+                push @packs, "$pack$_" unless /^::/; 
                 push @packs, @children;
             }
             return grep {$_ !~ /::::ISA::CACHE/} @packs;
