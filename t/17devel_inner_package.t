@@ -1,3 +1,4 @@
+#!perl -wT
 use Test::More tests => 3;
 
 use Devel::InnerPackage qw(list_packages);

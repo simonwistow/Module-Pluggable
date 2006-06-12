@@ -7,7 +7,7 @@ my $build = Module::Build
          requires    => {
                           'Test::More'            => 0,
                           'File::Basename'        => 0,
-                          'File::Spec::Functions' => 0,
+                          'File::Spec::Functions' => '3.00',
                         },
          create_makefile_pl => 'traditional',
        );
