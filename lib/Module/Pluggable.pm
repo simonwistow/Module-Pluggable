@@ -15,7 +15,7 @@ sub import {
     my $class        = shift;
     my %opts         = @_;
 
-	my ($pkg, $file) = caller; 
+    my ($pkg, $file) = caller; 
     # the default name for the method is 'plugins'
     my $sub          = $opts{'sub_name'}  || 'plugins';
     # get our package 
@@ -24,7 +24,7 @@ sub import {
     $opts{package}   = $package;
 
 
-	my $finder       = Module::Pluggable::Object->new(%opts);
+    my $finder       = Module::Pluggable::Object->new(%opts);
     my $subroutine   = sub { my $self = shift; return $finder->plugins(@_) };
 
     my $searchsub = sub {

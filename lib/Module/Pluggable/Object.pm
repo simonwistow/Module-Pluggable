@@ -112,7 +112,6 @@ sub search_directories {
     my $self      = shift;
     my @SEARCHDIR = @_;
 
-
     my @plugins;
     # go through our @INC
     foreach my $dir (@SEARCHDIR) {
@@ -135,6 +134,7 @@ sub search_paths {
     foreach my $searchpath (@{$self->{'search_path'}}) {
         # create the search directory in a cross platform goodness way
         my $sp = catdir($dir, (split /::/, $searchpath));
+
         # if it doesn't exist or it's not a dir then skip it
         next unless ( -e $sp && -d _ ); # Use the cached stat the second time
 
@@ -159,8 +159,8 @@ sub search_paths {
 
             next unless $plugin =~ m!(?:[a-z\d]+)[a-z\d]!i;
 
-            eval { $self->handle_finding_plugin($plugin) };
-            carp "Couldn't require $plugin : $@" if $@;
+            my $err = eval { $self->handle_finding_plugin($plugin) };
+            carp "Couldn't require $plugin : $err" if $err;
              
             push @plugins, $plugin;
         }
@@ -179,7 +179,7 @@ sub handle_finding_plugin {
     my $plugin = shift;
 
     return unless (defined $self->{'instantiate'} || $self->{'require'}); 
-       $self->_require($plugin);
+    $self->_require($plugin);
 }
 
 sub find_files {
@@ -213,9 +213,11 @@ sub handle_innerpackages {
     my $path = shift;
     my @plugins;
 
+
     foreach my $plugin (Devel::InnerPackage::list_packages($path)) {
-        eval { $self->handle_finding_plugin($plugin) };
-        # next if $@;
+        my $err = eval { $self->handle_finding_plugin($plugin) };
+		#next if $err;
+		#next unless $INC{$plugin};
         push @plugins, $plugin;
     }
     return @plugins;

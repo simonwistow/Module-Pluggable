@@ -1,13 +1,10 @@
 #!perl -wT
 
 use Test::More tests => 1;
+use lib 't/lib';
 
 use Devel::InnerPackage qw(list_packages);
-use lib qw(t/lib);
+use No::Middle;
 
-my @packages;
-
-use_ok("No::Middle");
-ok(@packages = list_packages("No::Middle"));
-is_deeply([sort @packages], [qw(No::Middle::Package::A No::Middle::Package::B)]);
-
+my @p = list_packages("No::Middle");
+is_deeply([ sort @p ], [ qw(No::Middle::Package::A No::Middle::Package::B) ]);
