@@ -68,11 +68,11 @@ sub list_packages {
             no strict 'refs';
             my @packs;
 			my @stuff = grep !/^(main|)::$/, keys %{$pack};
-            for (grep /::$/, @stuff)
+            for my $cand (grep /::$/, @stuff)
             {
-                s!::$!!;
-                my @children = list_packages($pack.$_);
-                push @packs, "$pack$_" unless /^::/ or @children;
+                $cand =~ s!::$!!;
+                my @children = list_packages($pack.$cand);
+                push @packs, "$pack$cand" unless $cand =~ /^::/ or @children;
                 push @packs, @children;
             }
             return grep {$_ !~ /::::ISA::CACHE/} @packs;
