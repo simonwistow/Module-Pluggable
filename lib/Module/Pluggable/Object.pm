@@ -216,8 +216,8 @@ sub handle_innerpackages {
 
     foreach my $plugin (Devel::InnerPackage::list_packages($path)) {
         my $err = eval { $self->handle_finding_plugin($plugin) };
-		#next if $err;
-		#next unless $INC{$plugin};
+        #next if $err;
+        #next unless $INC{$plugin};
         push @plugins, $plugin;
     }
     return @plugins;

@@ -13,6 +13,7 @@ my %plugins = map { $_ => 1 } $t->plugins;
 ok(keys %plugins, "Got some plugins");
 ok($plugins{'InnerTest::Plugin::Foo'}, "Got Foo");
 ok($plugins{'InnerTest::Plugin::Bar'}, "Got Bar - the inner package");
+ok($plugins{'InnerTest::Plugin::Quux'}, "Got Quux - the other inner package");
 
 
 

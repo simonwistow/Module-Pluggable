@@ -7,7 +7,7 @@ use lib 't/lib';
 use Test::More tests=>5;
 
 #use_ok( 'MyTest' );
-diag "Module::Pluggable::VERSION $Module::Pluggable::VERSION";
+#diag "Module::Pluggable::VERSION $Module::Pluggable::VERSION";
 
 my @plugins = MyTest->plugins;
 my @plugins_after;

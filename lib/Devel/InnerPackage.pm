@@ -4,6 +4,7 @@ use strict;
 use base qw(Exporter);
 use vars qw($VERSION @EXPORT_OK);
 
+use Class::Inspector;
 
 
 $VERSION = '0.3';
@@ -19,7 +20,7 @@ Devel::InnerPackage - find all the inner packages of a package
 =head1 SYNOPSIS
 
     use Foo::Bar;
-	use Devel::innerPackage qw(list_packages);
+    use Devel::innerPackage qw(list_packages);
 
     my @inner_packages = list_packages('Foo::Bar');
 
@@ -67,12 +68,13 @@ sub list_packages {
 
             no strict 'refs';
             my @packs;
-			my @stuff = grep !/^(main|)::$/, keys %{$pack};
+            my @stuff = grep !/^(main|)::$/, keys %{$pack};
             for my $cand (grep /::$/, @stuff)
             {
                 $cand =~ s!::$!!;
                 my @children = list_packages($pack.$cand);
-                push @packs, "$pack$cand" unless $cand =~ /^::/ or @children;
+    
+                push @packs, "$pack$cand" unless $cand =~ /^::/ || !Class::Inspector->loaded($pack.$cand); # or @children;
                 push @packs, @children;
             }
             return grep {$_ !~ /::::ISA::CACHE/} @packs;
