@@ -1,8 +1,13 @@
+2006-07-11 - 3.1
+    Force Test::More version to be latest which stops it trampling on $_
+    Use Class::Inspector tests to check to see Package is loaded thus
+    preventing incompatability problems introduced by last patch.
+
 2006-06-07 - 3.01
     Fix from Brian Cassidy in Devel::InnerPackage
 
 2006-06-06 - 3.0
-	Big refactor to split stuff up into more manageable pieces 
+    Big refactor to split stuff up into more manageable pieces 
 
 
 2006-04-05 - 2.98
