@@ -37,6 +37,9 @@ t/14package.t
 t/15topicsafe.t
 t/16different_extension.t
 t/17devel_inner_package.t
+t/18skipped_package.t
+t/19_can_ok_clobber.t
+t/lib/No/Middle.pm
 t/acme/Acme/MyTest/Plugin/Foo.pm
 t/lib/Acme/MyTest/Plugin/Foo.pm
 t/lib/ExtTest/Plugin/Bar.plugin
