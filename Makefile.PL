@@ -5,7 +5,6 @@ WriteMakefile
           'NAME' => 'Module::Pluggable',
           'VERSION_FROM' => 'lib/Module/Pluggable.pm',
           'PREREQ_PM' => {
-                           'Class::Inspector' => '0',
                            'File::Basename' => '0',
                            'File::Spec' => '3.00',
                            'Test::More' => '0.62'

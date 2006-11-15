@@ -1,3 +1,7 @@
+2006-11-15 - 3.2
+    Remove Class::Inspector dependency and inline code
+    Prepare for assimilation into CORE
+
 2006-07-11 - 3.1
     Force Test::More version to be latest which stops it trampling on $_
     Use Class::Inspector tests to check to see Package is loaded thus
