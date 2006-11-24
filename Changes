@@ -1,3 +1,6 @@
+2006-11-24 - 3.3
+    Few more patches from Jos Boumans to get read for CORE
+
 2006-11-15 - 3.2
     Remove Class::Inspector dependency and inline code
     Prepare for assimilation into CORE
