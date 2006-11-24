@@ -12,6 +12,7 @@ lib/Module/Pluggable/Object.pm
 t/01use.t
 t/02alsoworks.t
 t/02works.t
+t/02works_taint.t
 t/03diffname.t
 t/04acmedir.t
 t/04acmedir_single.t
