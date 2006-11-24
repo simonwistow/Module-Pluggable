@@ -2,7 +2,8 @@
 use strict; 
 use warnings;
 use Data::Dumper;
-use lib 't/lib';
+use FindBin;
+use lib "$FindBin::Bin/lib";
 
 use Test::More tests=>5;
 

@@ -1,14 +1,15 @@
-#!perl -wT
+#!perl -w
 
 use strict;
-use lib 't/lib';
+use FindBin;
+use lib "$FindBin::Bin/lib";
 use Test::More tests => 5;
 
 my $foo;
 ok($foo = OddTest->new());
 
 my @plugins;
-my @expected = ('OddTest::Plugin::#Dodgy', 'OddTest::Plugin::Foo');
+my @expected = ('OddTest::Plugin::-Dodgy', 'OddTest::Plugin::Foo');
 ok(@plugins = sort $foo->plugins);
 is_deeply(\@plugins, \@expected, "is deeply");
 
@@ -27,7 +28,7 @@ use base qw(Module::Pluggable::Object);
 sub find_files { 
     my $self = shift;
     my @files = $self->SUPER::find_files(@_);
-    return grep { !/(^|\/)#/ } $self->SUPER::find_files(@_) ;
+    return grep { !/(^|\/)-/ } $self->SUPER::find_files(@_) ;
 }
 
 package OddTest;

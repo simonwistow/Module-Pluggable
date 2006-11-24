@@ -1,8 +1,9 @@
-#!perl -wT
+#!perl -w
 use Test::More tests => 3;
 
 use Devel::InnerPackage qw(list_packages);
-use lib qw(t/lib);
+use FindBin;
+use lib "$FindBin::Bin/lib";
 
 my @packages;
 

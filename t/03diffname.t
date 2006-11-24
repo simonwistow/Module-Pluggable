@@ -1,7 +1,8 @@
-#!perl -wT
+#!perl -w
 
 use strict;
-use lib 't/lib';
+use FindBin;
+use lib "$FindBin::Bin/lib";
 use Test::More tests => 3;
 
 my $foo;

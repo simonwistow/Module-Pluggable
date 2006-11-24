@@ -1,6 +1,8 @@
-Build
+Build$
 _build
 blib
-Makefile
+Makefile$
 \.tar\.gz$
 \.svn
+\.bak$
+^Module-Pluggable
