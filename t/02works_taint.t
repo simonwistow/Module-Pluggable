@@ -16,17 +16,13 @@ my @expected = qw(Module::Pluggable::Object);
 ok(@plugins = sort $foo->plugins);
 
 
-
-is_deeply(\@plugins, \@expected, "is deeply");
+ok(grep {/Module::Pluggable::Object/} @plugins, "Contains Module::Pluggable::Object");
 
 @plugins = ();
 
 ok(@plugins = sort MyTest->plugins);
 
-
-
-
-is_deeply(\@plugins, \@expected, "is deeply class");
+ok(grep {/Module::Pluggable::Object/} @plugins, "Contains Module::Pluggable::Object under class method");
 
 
 

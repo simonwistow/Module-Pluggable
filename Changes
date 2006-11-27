@@ -1,3 +1,7 @@
+2006-11-27 - 3.4
+    Make sure we don't fail taint checking when other 
+    Module::Pluggable::* modules are installed.
+
 2006-11-24 - 3.3
     Few more patches from Jos Boumans to get read for CORE
 
