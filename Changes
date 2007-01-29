@@ -1,3 +1,6 @@
+2007-01-29 - 3.5
+    Patch from Audrey Tang to prevent clobbering of $@
+
 2006-11-27 - 3.4
     Make sure we don't fail taint checking when other 
     Module::Pluggable::* modules are installed.
