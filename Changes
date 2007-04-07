@@ -1,3 +1,8 @@
+2007-04-07 - 3.6
+    Include blead perl patch from Craig Berry that gives better 
+    Module::Pluggable::Object::search_paths portability as 
+    prompted by VMS test failures.
+
 2007-01-29 - 3.5
     Patch from Audrey Tang to prevent clobbering of $@
 
