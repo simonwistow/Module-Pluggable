@@ -1,3 +1,7 @@
+2008-10-31 - 3.7 
+    Ignore editor cruft by default (Dave Rolsky and Matt Trout)
+    Doc patches
+
 2007-04-07 - 3.6
     Include blead perl patch from Craig Berry that gives better 
     Module::Pluggable::Object::search_paths portability as 
@@ -11,7 +15,7 @@
     Module::Pluggable::* modules are installed.
 
 2006-11-24 - 3.3
-    Few more patches from Jos Boumans to get read for CORE
+    Few more patches from Jos Boumans to get ready for CORE
 
 2006-11-15 - 3.2
     Remove Class::Inspector dependency and inline code
