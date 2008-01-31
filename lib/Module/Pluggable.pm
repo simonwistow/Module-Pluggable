@@ -297,6 +297,14 @@ By supplying a new C<file_regex> then you can change this behaviour e.g
 
     file_regex => qr/\.plugin$/
 
+=head2 include_editor_junk
+
+By default C<Module::Pluggable> ignores files that look like they were
+left behind by editors. Currently this means files ending in F<~> (~),
+the extensions F<.swp> or F<.swo>, or files beginning with F<.#>.
+
+Setting C<include_editor_junk> changes C<Module::Pluggable> so it does
+not ignore any files it finds.
 
 
 =head1 METHODs

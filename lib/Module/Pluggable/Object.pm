@@ -151,6 +151,8 @@ sub search_paths {
             # parse the file to get the name
             my ($name, $directory, $suffix) = fileparse($file, $file_regex);
 
+            next if (!$self->{include_editor_junk} && $self->_is_editor_junk($name));
+
             $directory = abs2rel($directory, $sp);
 
             # If we have a mixed-case package name, assume case has been preserved
@@ -207,6 +209,22 @@ sub search_paths {
     } # foreach $searchpath
 
     return @plugins;
+}
+
+sub _is_editor_junk {
+    my $self = shift;
+    my $name = shift;
+
+    # Emacs (and other Unix-y editors) leave temp files ending in a
+    # tilde as a backup.
+    return 1 if $name =~ /~$/;
+    # Emacs makes these files while a buffer is edited but not yet
+    # saved.
+    return 1 if $name =~ /^\.#/;
+    # Vim can leave these files behind if it crashes.
+    return 1 if $name =~ /\.sw[po]$/;
+
+    return 0;
 }
 
 sub handle_finding_plugin {
