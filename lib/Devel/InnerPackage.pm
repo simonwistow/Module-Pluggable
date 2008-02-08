@@ -17,7 +17,7 @@ Devel::InnerPackage - find all the inner packages of a package
 =head1 SYNOPSIS
 
     use Foo::Bar;
-    use Devel::innerPackage qw(list_packages);
+    use Devel::InnerPackage qw(list_packages);
 
     my @inner_packages = list_packages('Foo::Bar');
 
