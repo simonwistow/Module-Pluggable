@@ -20,6 +20,10 @@ sub new {
 
 }
 
+### Eugggh, this code smells 
+### This is what happens when you keep adding patches
+### *sigh*
+
 
 sub plugins {
         my $self = shift;
