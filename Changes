@@ -2,6 +2,7 @@
     Ignore editor cruft by default (Dave Rolsky and Matt Trout)
     Doc patches
     Prevent prototype mismatch warnings under Error.pm
+    Don't pick up the ::SUPER pseudo stash in 5.8 (Alex Vandiver)
     
 
 2007-04-07 - 3.6
