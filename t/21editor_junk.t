@@ -2,7 +2,7 @@
 
 use Test::More tests => 4;
 use FindBin;
-use lib "$FindBin::Bin/lib";
+use lib (($FindBin::Bin."/lib")=~/^(.*)$/);
 use Module::Pluggable::Object;
 
 my $foo;

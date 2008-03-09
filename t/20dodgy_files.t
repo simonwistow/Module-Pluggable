@@ -9,7 +9,7 @@ BEGIN {
 
 use strict;
 use FindBin;
-use lib "$FindBin::Bin/lib";
+use lib (($FindBin::Bin."/lib")=~/^(.*)$/);
 use Test::More tests => 5;
 
 my $foo;
