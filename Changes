@@ -1,6 +1,8 @@
 2008-01-31 - 3.7 
     Ignore editor cruft by default (Dave Rolsky and Matt Trout)
     Doc patches
+    Prevent prototype mismatch warnings under Error.pm
+    
 
 2007-04-07 - 3.6
     Include blead perl patch from Craig Berry that gives better 

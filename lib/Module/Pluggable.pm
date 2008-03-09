@@ -60,8 +60,9 @@ sub import {
 
 
     no strict 'refs';
-    no warnings 'redefine';
-    *{"$package\::$sub"}    = $subroutine;
+    no warnings qw(redefine prototype);
+    
+    *{"$package\::$sub"}        = $subroutine;
     *{"$package\::search_path"} = $searchsub;
     *{"$package\::only"}        = $onlysub;
     *{"$package\::except"}      = $exceptsub;
