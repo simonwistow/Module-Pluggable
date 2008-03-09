@@ -1,7 +1,7 @@
 #!perl -w
 
 BEGIN {
-    if ($^O eq 'VMS') {
+    if ($^O eq 'VMS' || $^O eq 'VOS') {
         print "1..0 # Skip: can't handle misspelled plugin names\n";
         exit;
     }
@@ -10,7 +10,15 @@ BEGIN {
 use strict;
 use FindBin;
 use lib (($FindBin::Bin."/lib")=~/^(.*)$/);
-use Test::More tests => 5;
+use Test::More;
+
+my ($dodgy_file) = (($FindBin::Bin."/lib/OddTest/Plugin/-Dodgy.pm")=~/^(.*)$/);
+unless (-f $dodgy_file) {
+        plan skip_all => "Can't handle misspelled plugin names\n";
+} else {
+		plan tests => 5;
+}
+
 
 my $foo;
 ok($foo = OddTest->new());

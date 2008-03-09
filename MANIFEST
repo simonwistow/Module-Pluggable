@@ -43,7 +43,6 @@ t/18skipped_package.t
 t/19can_ok_clobber.t
 t/20dodgy_files.t
 t/21editor_junk.t
-t/21object.t
 t/acme/Acme/MyTest/Plugin/Foo.pm
 t/lib/Acme/MyTest/Plugin/Foo.pm
 t/lib/EditorJunk/Plugin/#Bar.pm#
@@ -62,11 +61,9 @@ t/lib/MyOtherTest/Plugin/Foo.pm
 t/lib/MyOtherTest/Plugin/Quux.pm
 t/lib/MyOtherTest/Plugin/Quux/Foo.pm
 t/lib/MyTest/Extend/Plugin/Bar.pm
-t/lib/MyTest/Plugin.pm
 t/lib/MyTest/Plugin/Bar.pm
 t/lib/MyTest/Plugin/Foo.pm
 t/lib/MyTest/Plugin/Quux/Foo.pm
 t/lib/No/Middle.pm
-t/lib/OddTest/Plugin/-Dodgy.pm
 t/lib/OddTest/Plugin/Foo.pm
 t/lib/TA/C/A/I.pm
