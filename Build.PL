@@ -23,7 +23,7 @@ my $build = Module::Build
                           'File::Basename'        => 0,
                           'File::Spec'            => '3.00',
                         },
-         create_makefile_pl => 'traditional',
+#         create_makefile_pl => 'traditional',
        );
 
 $build->create_build_script;
