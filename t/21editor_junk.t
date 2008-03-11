@@ -1,9 +1,19 @@
 #!perl -w
 
-use Test::More tests => 4;
+use Test::More;
 use FindBin;
 use lib (($FindBin::Bin."/lib")=~/^(.*)$/);
 use Module::Pluggable::Object;
+
+
+my ($dodgy_file) = (($FindBin::Bin."/lib/EditorJunk/Plugin/#Bar.pm#")=~/^(.*)$/);
+unless (-f $dodgy_file) {
+        plan skip_all => "Can't handle plugin names with octothorpes\n";
+} else {
+        plan tests => 4;
+}
+
+
 
 my $foo;
 ok($foo = EditorJunk->new());

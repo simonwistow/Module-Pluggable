@@ -16,7 +16,7 @@ my ($dodgy_file) = (($FindBin::Bin."/lib/OddTest/Plugin/-Dodgy.pm")=~/^(.*)$/);
 unless (-f $dodgy_file) {
         plan skip_all => "Can't handle misspelled plugin names\n";
 } else {
-		plan tests => 5;
+        plan tests => 5;
 }
 
 
