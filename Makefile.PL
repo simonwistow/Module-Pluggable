@@ -9,7 +9,7 @@ use File::Spec::Functions qw(catfile);
 my %dodgy_files = (
 	catfile(qw(OddTest Plugin -Dodgy.pm))   => 'OddTest::Plugin::-Dodgy',
     catfile(qw(EditorJunk Plugin #Bar.pm#)) => 'EditorJunk::Bar',
-    catfile(qw(EditorJunk/Plugin/.#Bar.pm)) => 'EditorJunk::Bar',
+    catfile(qw(EditorJunk Plugin .#Bar.pm)) => 'EditorJunk::Bar',
 );
 
 if ($^O ne 'VMS' && $^O ne 'VOS') {
