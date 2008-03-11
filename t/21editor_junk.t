@@ -4,9 +4,9 @@ use Test::More;
 use FindBin;
 use lib (($FindBin::Bin."/lib")=~/^(.*)$/);
 use Module::Pluggable::Object;
+use File::Spec::Functions qw(catfile);
 
-
-my ($dodgy_file) = (($FindBin::Bin."/lib/EditorJunk/Plugin/#Bar.pm#")=~/^(.*)$/);
+my ($dodgy_file) = (catfile($FindBin::Bin,"lib", "EditorJunk", "Plugin", "#Bar.pm#")=~/^(.*)$/);
 unless (-f $dodgy_file) {
         plan skip_all => "Can't handle plugin names with octothorpes\n";
 } else {

@@ -9,10 +9,12 @@ BEGIN {
 
 use strict;
 use FindBin;
-use lib (($FindBin::Bin."/lib")=~/^(.*)$/);
 use Test::More;
+use lib (($FindBin::Bin."/lib")=~/^(.*)$/);
+use File::Spec::Functions qw(catfile);
 
-my ($dodgy_file) = (($FindBin::Bin."/lib/OddTest/Plugin/-Dodgy.pm")=~/^(.*)$/);
+
+my ($dodgy_file) = (catfile($FindBin::Bin, "lib", "OddTest", "Plugin", "-Dodgy.pm")=~/^(.*)$/);
 unless (-f $dodgy_file) {
         plan skip_all => "Can't handle misspelled plugin names\n";
 } else {
