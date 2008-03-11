@@ -45,8 +45,6 @@ t/20dodgy_files.t
 t/21editor_junk.t
 t/acme/Acme/MyTest/Plugin/Foo.pm
 t/lib/Acme/MyTest/Plugin/Foo.pm
-t/lib/EditorJunk/Plugin/#Bar.pm#
-t/lib/EditorJunk/Plugin/.#Bar.pm
 t/lib/EditorJunk/Plugin/Bar.pm
 t/lib/EditorJunk/Plugin/Bar.pm.swo
 t/lib/EditorJunk/Plugin/Bar.pm.swp

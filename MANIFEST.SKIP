@@ -7,3 +7,6 @@ Makefile$
 \.bak$
 ^Module-Pluggable
 t/lib/OddTest/Plugin/-Dodgy.pm
+t/lib/EditorJunk/Plugin/#Bar.pm#
+t/lib/EditorJunk/Plugin/.#Bar.pm
+
