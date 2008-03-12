@@ -1,4 +1,7 @@
-2008-01-31 - 3.7 
+2008-????? - 3.8
+    Set INSTALLDIRS correctly in Makefile.PL
+
+2008-03-12 - 3.7 
     Ignore editor cruft by default (Dave Rolsky and Matt Trout)
     Doc patches (Matt Trout)
     Prevent prototype mismatch warnings under Error.pm (Christopher H. Laco)
