@@ -321,6 +321,14 @@ looks through a search path for .pm files and turn those into class names.
 
 Optionally it instantiates those classes for you.
 
+This object is wrapped by C<Module::Pluggable>. If you want to do something
+odd or add non-general special features you're probably best to wrap this
+and produce your own subclass.
+
+=head1 OPTIONS
+
+See the C<Module::Pluggable> docs.
+
 =head1 AUTHOR
 
 Simon Wistow <simon@thegestalt.org>
