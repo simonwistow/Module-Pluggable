@@ -27,14 +27,15 @@ if ($^O ne 'VMS' && $^O ne 'VOS') {
 
 WriteMakefile
 (
-          'NAME' => 'Module::Pluggable',
+          'NAME'         => 'Module::Pluggable',
           'VERSION_FROM' => 'lib/Module/Pluggable.pm',
-          'PREREQ_PM' => {
+          'PREREQ_PM'    => {
                            'File::Basename' => '0',
                            'File::Spec' => '3.00',
                            'Test::More' => '0.62'
                          },
-          'EXE_FILES' => [],
-          'PL_FILES' => {}
+          'EXE_FILES'    => [],
+          'INSTALLDIRS'  => ($] >= 5.008009) ? "perl" : "site"
+          'PL_FILES'     => {}
         )
 ;
