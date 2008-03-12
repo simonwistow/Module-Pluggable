@@ -34,7 +34,6 @@ WriteMakefile
                            'File::Spec' => '3.00',
                            'Test::More' => '0.62'
                          },
-          'INSTALLDIRS' => 'site',
           'EXE_FILES' => [],
           'PL_FILES' => {}
         )
