@@ -1,5 +1,6 @@
 2008-????? - 3.8
     Set INSTALLDIRS correctly in Makefile.PL
+    A couple of other fixups to play nicely in Core
 
 2008-03-12 - 3.7 
     Ignore editor cruft by default (Dave Rolsky and Matt Trout)
