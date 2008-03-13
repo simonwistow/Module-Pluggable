@@ -7,20 +7,25 @@ use File::Spec::Functions qw(catfile);
 # and VOS can't even unpack them so we create them on the
 # fly and only run the tests if they're present
 my %dodgy_files = (
-	catfile(qw(OddTest Plugin -Dodgy.pm))   => 'OddTest::Plugin::-Dodgy',
+    catfile(qw(OddTest Plugin -Dodgy.pm))   => 'OddTest::Plugin::-Dodgy',
     catfile(qw(EditorJunk Plugin #Bar.pm#)) => 'EditorJunk::Bar',
     catfile(qw(EditorJunk Plugin .#Bar.pm)) => 'EditorJunk::Bar',
 );
 
-if ($^O ne 'VMS' && $^O ne 'VOS') {
+my $core = grep { $_ eq 'PERL_CORE=1' } @ARGV;
+my @path = $core ? (File::Spec->updir, File::Spec->updir, File::Spec->updir,
+                   "t", "Module_Pluggable") : ($FindBin::Bin,"t");
 
-	foreach my $test (keys %dodgy_files) {
-	    my ($file) = (catfile($FindBin::Bin,"t","lib", $test)=~/^(.*)$/);
-	    if (open(my $fh, ">", $file)) {
-			my $name = $dodgy_files{$test};
-	        print $fh "package $name;\nsub new {}\n1;";
-	        close($fh);
-    	}
+my @files;
+if ($^O ne 'VMS' && $^O ne 'VOS') {
+    foreach my $test (keys %dodgy_files) {
+        my ($file) = (catfile($FindBin::Bin,"t","lib", $test)=~/^(.*)$/);
+        if (open(my $fh, ">", $file)) {
+            my $name = $dodgy_files{$test};
+            print $fh "package $name;\nsub new {}\n1;";
+            close($fh);
+            push @files, $file;
+        }
     }
 }
 
@@ -35,7 +40,10 @@ WriteMakefile
                            'Test::More' => '0.62'
                          },
           'EXE_FILES'    => [],
-          'INSTALLDIRS'  => ($] >= 5.008009) ? "perl" : "site"
-          'PL_FILES'     => {}
+          'INSTALLDIRS'  => ($] >= 5.008009) ? "perl" : "site",
+          'PL_FILES'     => {},
+          'realclean'    => {FILES=> join ' ', @files},
+          # In the core pods will be built by installman.
+          $core ? (MAN3PODS => {}) : (),
         )
 ;
