@@ -1,4 +1,4 @@
-2008-????? - 3.8
+2008-03-16 - 3.8
     Set INSTALLDIRS correctly in Makefile.PL
     A couple of other fixups to play nicely in Core
 
