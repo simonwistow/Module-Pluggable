@@ -17,7 +17,7 @@ my @path = $core ? (File::Spec->updir, File::Spec->updir, File::Spec->updir,
                    "t", "Module_Pluggable") : ($FindBin::Bin,"t");
 
 my @files;
-if ($^O ne 'VMS' && $^O ne 'VOS') {
+unless (grep { lc($^O) eq $_ } qw(vms vos)) {
     foreach my $test (keys %dodgy_files) {
         my ($file) = (catfile(@path, "lib", $test)=~/^(.*)$/);
         if (open(my $fh, ">", $file)) {
