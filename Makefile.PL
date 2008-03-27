@@ -20,10 +20,10 @@ my @files;
 unless (grep { lc($^O) eq $_ } qw(vms vos)) {
     foreach my $test (keys %dodgy_files) {
         my ($file) = (catfile(@path, "lib", $test)=~/^(.*)$/);
-        if (open(my $fh, ">", $file)) {
+        if (open(FH, ">$file")) {
             my $name = $dodgy_files{$test};
-            print $fh "package $name;\nsub new {}\n1;";
-            close($fh);
+            print FH "package $name;\nsub new {}\n1;";
+            close(FH);
             push @files, $file;
         }
     }
