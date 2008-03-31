@@ -1,3 +1,6 @@
+?????????? - 3.9 
+    Allow inner packages when in a one file situation (suggestion from Christopher Brown)
+
 2008-03-16 - 3.8
     Set INSTALLDIRS correctly in Makefile.PL
     A couple of other fixups to play nicely in Core

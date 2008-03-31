@@ -57,6 +57,7 @@ sub plugins {
 
 
         my @plugins = $self->search_directories(@SEARCHDIR);
+        push(@plugins, $self->handle_innerpackages($_)) for @{$self->{'search_path'}};
 
         # push @plugins, map { print STDERR "$_\n"; $_->require } list_packages($_) for (@{$self->{'search_path'}});
         
@@ -125,7 +126,6 @@ sub search_directories {
     foreach my $dir (@SEARCHDIR) {
         push @plugins, $self->search_paths($dir);
     }
-
     return @plugins;
 }
 
@@ -209,7 +209,7 @@ sub search_paths {
         # now add stuff that may have been in package
         # NOTE we should probably use all the stuff we've been given already
         # but then we can't unload it :(
-        push @plugins, $self->handle_innerpackages($searchpath) unless (exists $self->{inner} && !$self->{inner});
+        push @plugins, $self->handle_innerpackages($searchpath);
     } # foreach $searchpath
 
     return @plugins;
@@ -267,9 +267,10 @@ sub find_files {
 
 sub handle_innerpackages {
     my $self = shift;
+    return () if (exists $self->{inner} && !$self->{inner});
+
     my $path = shift;
     my @plugins;
-
 
     foreach my $plugin (Devel::InnerPackage::list_packages($path)) {
         my $err = $self->handle_finding_plugin($plugin);

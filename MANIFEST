@@ -25,6 +25,7 @@ t/09require.t
 t/10innerpack.t
 t/10innerpack_inner.t
 t/10innerpack_noinner.t
+t/10innerpack_onefile.t
 t/10innerpack_override.t
 t/10innerpack_super.t
 t/11usetwice.t
