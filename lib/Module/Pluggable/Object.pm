@@ -6,7 +6,6 @@ use File::Basename;
 use File::Spec::Functions qw(splitdir catdir curdir catfile abs2rel);
 use Carp qw(croak carp);
 use Devel::InnerPackage;
-use Data::Dumper;
 use vars qw($VERSION);
 
 $VERSION = '3.6';
