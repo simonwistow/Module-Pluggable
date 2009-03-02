@@ -34,13 +34,13 @@ sub plugins {
         my $filename   = $self->{'filename'};
         my $pkg        = $self->{'package'};
 
+        # Get the exception params instantiated
+        $self->_setup_exceptions;
+
         # automatically turn a scalar search path or namespace into a arrayref
         for (qw(search_path search_dirs)) {
             $self->{$_} = [ $self->{$_} ] if exists $self->{$_} && !ref($self->{$_});
         }
-
-
-
 
         # default search path is '<Module>::<Name>::Plugin'
         $self->{'search_path'} = ["${pkg}::Plugin"] unless $self->{'search_path'}; 
@@ -65,43 +65,12 @@ sub plugins {
         return () unless @plugins;
 
 
-        # exceptions
-        my %only;   
-        my %except; 
-        my $only;
-        my $except;
-
-        if (defined $self->{'only'}) {
-            if (ref($self->{'only'}) eq 'ARRAY') {
-                %only   = map { $_ => 1 } @{$self->{'only'}};
-            } elsif (ref($self->{'only'}) eq 'Regexp') {
-                $only = $self->{'only'}
-            } elsif (ref($self->{'only'}) eq '') {
-                $only{$self->{'only'}} = 1;
-            }
-        }
-        
-
-        if (defined $self->{'except'}) {
-            if (ref($self->{'except'}) eq 'ARRAY') {
-                %except   = map { $_ => 1 } @{$self->{'except'}};
-            } elsif (ref($self->{'except'}) eq 'Regexp') {
-                $except = $self->{'except'}
-            } elsif (ref($self->{'except'}) eq '') {
-                $except{$self->{'except'}} = 1;
-            }
-        }
-
 
         # remove duplicates
         # probably not necessary but hey ho
         my %plugins;
         for(@plugins) {
-            next if (keys %only   && !$only{$_}     );
-            next unless (!defined $only || m!$only! );
-
-            next if (keys %except &&  $except{$_}   );
-            next if (defined $except &&  m!$except! );
+            next unless $self->_is_legit($_);
             $plugins{$_} = 1;
         }
 
@@ -115,6 +84,58 @@ sub plugins {
         }
 
 
+}
+
+sub _setup_exceptions {
+    my $self = shift;
+
+    my %only;   
+    my %except; 
+    my $only;
+    my $except;
+
+    if (defined $self->{'only'}) {
+        if (ref($self->{'only'}) eq 'ARRAY') {
+            %only   = map { $_ => 1 } @{$self->{'only'}};
+        } elsif (ref($self->{'only'}) eq 'Regexp') {
+            $only = $self->{'only'}
+        } elsif (ref($self->{'only'}) eq '') {
+            $only{$self->{'only'}} = 1;
+        }
+    }
+        
+
+    if (defined $self->{'except'}) {
+        if (ref($self->{'except'}) eq 'ARRAY') {
+            %except   = map { $_ => 1 } @{$self->{'except'}};
+        } elsif (ref($self->{'except'}) eq 'Regexp') {
+            $except = $self->{'except'}
+        } elsif (ref($self->{'except'}) eq '') {
+            $except{$self->{'except'}} = 1;
+        }
+    }
+    $self->{_exceptions}->{only_hash}   = \%only;
+    $self->{_exceptions}->{only}        = $only;
+    $self->{_exceptions}->{except_hash} = \%except;
+    $self->{_exceptions}->{except}      = $except;
+        
+}
+
+sub _is_legit {
+    my $self   = shift;
+    my $plugin = shift;
+    my %only   = %{$self->{_exceptions}->{only_hash}||{}};
+    my %except = %{$self->{_exceptions}->{except_hash}||{}};
+    my $only   = $self->{_exceptions}->{only};
+    my $except = $self->{_exceptions}->{except};
+
+    return 0 if     (keys %only   && !$only{$plugin}     );
+    return 0 unless (!defined $only || $plugin =~ m!$only!     );
+
+    return 0 if     (keys %except &&  $except{$plugin}   );
+    return 0 if     (defined $except &&  $plugin =~ m!$except! );
+
+    return 1;
 }
 
 sub search_directories {
@@ -236,6 +257,7 @@ sub handle_finding_plugin {
     my $plugin = shift;
 
     return unless (defined $self->{'instantiate'} || $self->{'require'}); 
+    return unless $self->_is_legit($plugin);
     $self->_require($plugin);
 }
 
@@ -287,7 +309,7 @@ sub _require {
     my $self = shift;
     my $pack = shift;
     local $@;
-    eval "CORE::require($pack)";
+    eval "CORE::require $pack";
     return $@;
 }
 

@@ -1,5 +1,6 @@
-?????????? - 3.9 
+2009-03-02 - 3.9 
     Allow inner packages when in a one file situation (suggestion from Christopher Brown)
+    Fix bug with requiring skipped packages (from Jos Boumans)
 
 2008-03-16 - 3.8
     Set INSTALLDIRS correctly in Makefile.PL
