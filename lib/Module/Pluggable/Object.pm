@@ -287,7 +287,7 @@ sub _require {
     my $self = shift;
     my $pack = shift;
     local $@;
-    eval "CORE::require $pack";
+    eval "CORE::require($pack)";
     return $@;
 }
 
