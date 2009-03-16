@@ -45,6 +45,7 @@ t/19can_ok_clobber.t
 t/20dodgy_files.t
 t/21editor_junk.t
 t/acme/Acme/MyTest/Plugin/Foo.pm
+t/lib/Acme/Foo-Bar.pm
 t/lib/Acme/MyTest/Plugin/Foo.pm
 t/lib/EditorJunk/Plugin/Bar.pm
 t/lib/EditorJunk/Plugin/Bar.pm.swo
@@ -66,3 +67,4 @@ t/lib/MyTest/Plugin/Quux/Foo.pm
 t/lib/No/Middle.pm
 t/lib/OddTest/Plugin/Foo.pm
 t/lib/TA/C/A/I.pm
+t/lib/Zot/.Zork.pm
