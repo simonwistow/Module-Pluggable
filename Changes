@@ -1,3 +1,6 @@
+2012-01-03 - 4.0
+    Don't use defined on an array (it's deprecated)
+
 2009-03-02 - 3.9 
     Allow inner packages when in a one file situation (suggestion from Christopher Brown)
     Fix bug with requiring skipped packages (from Jos Boumans)
