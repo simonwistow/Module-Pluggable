@@ -331,6 +331,12 @@ Recently tried fixed to find inner packages and to make it
 
 However suggestions (and patches) are welcome.
 
+=head1 DEVELOPMENT
+
+The master repo for this module is at
+
+https://github.com/simonwistow/Module-Pluggable
+
 =head1 AUTHOR
 
 Simon Wistow <simon@thegestalt.org>
