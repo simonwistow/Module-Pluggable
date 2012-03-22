@@ -152,9 +152,8 @@ Optionally it instantiates those classes for you.
 
 =head1 ADVANCED USAGE
 
-    
 Alternatively, if you don't want to use 'plugins' as the method ...
-    
+
     package MyClass;
     use Module::Pluggable sub_name => 'foo';
 
