@@ -193,7 +193,7 @@ sub search_paths {
                     next if ($in_pod || $line =~ /^=cut/);  # skip pod text
                     next if $line =~ /^\s*#/;               # and comments
                     if ( $line =~ m/^\s*package\s+(.*::)?($name)\s*;/i ) {
-                        @pkg_dirs = split /::/, $1;
+                        @pkg_dirs = split /::/, $1 if defined $1;;
                         $name = $2;
                         last;
                     }
