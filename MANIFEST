@@ -67,4 +67,8 @@ t/lib/MyTest/Plugin/Quux/Foo.pm
 t/lib/No/Middle.pm
 t/lib/OddTest/Plugin/Foo.pm
 t/lib/TA/C/A/I.pm
+t/lib/TriggerTest/After.pm
+t/lib/TriggerTest/Callback.pm
+t/lib/TriggerTest/Deny.pm
+t/lib/TriggerTest/Error.pm
 t/lib/Zot/.Zork.pm

@@ -306,6 +306,31 @@ the extensions F<.swp> or F<.swo>, or files beginning with F<.#>.
 Setting C<include_editor_junk> changes C<Module::Pluggable> so it does
 not ignore any files it finds.
 
+=head1 TRIGGERS
+
+Various triggers can also be passed in to the options.
+
+If any of these triggers return 0 then the plugin will not be returned.
+
+=head2 before_require <plugin>
+
+Gets passed the plugin name. 
+
+If 0 is returned then this plugin will not be required either.
+
+=head2 on_error <plugin> <err>
+
+Gets called when there's an error on requiring the plugin.
+
+Gets passed the plugin name and the error. 
+
+The default on_error handler is to C<carp> the error and return 0.
+
+=head2 after_require <plugin>
+
+Gets passed the plugin name. 
+
+If 0 is returned then this plugin will be required but not returned as a plugin.
 
 =head1 METHODs
 

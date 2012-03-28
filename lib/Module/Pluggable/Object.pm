@@ -4,7 +4,7 @@ use strict;
 use File::Find ();
 use File::Basename;
 use File::Spec::Functions qw(splitdir catdir curdir catfile abs2rel);
-use Carp qw(croak carp);
+use Carp qw(croak carp confess);
 use Devel::InnerPackage;
 use vars qw($VERSION);
 
@@ -42,8 +42,10 @@ sub plugins {
         }
 
         # default search path is '<Module>::<Name>::Plugin'
-        $self->{'search_path'} = ["${pkg}::Plugin"] unless $self->{'search_path'}; 
+        $self->{'search_path'} ||= ["${pkg}::Plugin"]; 
 
+        # default error handler
+        $self->{on_error} ||= sub { my ($plugin, $err) = @_; carp "Couldn't require $plugin : $err"; return 0 };
 
         #my %opts = %$self;
 
@@ -220,10 +222,7 @@ sub search_paths {
 
             next unless $plugin =~ m!(?:[a-z\d]+)[a-z\d]!i;
 
-            my $err = $self->handle_finding_plugin($plugin);
-            carp "Couldn't require $plugin : $err" if $err;
-             
-            push @plugins, $plugin;
+            $self->handle_finding_plugin($plugin, \@plugins)
         }
 
         # now add stuff that may have been in package
@@ -252,12 +251,33 @@ sub _is_editor_junk {
 }
 
 sub handle_finding_plugin {
-    my $self   = shift;
-    my $plugin = shift;
-
-    return unless (defined $self->{'instantiate'} || $self->{'require'}); 
+    my $self    = shift;
+    my $plugin  = shift;
+    my $plugins = shift;
+    my $no_req  = shift || 0;
+    
     return unless $self->_is_legit($plugin);
-    $self->_require($plugin);
+    unless (defined $self->{'instantiate'} || $self->{'require'}) {
+        push @$plugins, $plugin;
+        return;
+    } 
+
+    $self->{before_require}->($plugin) || return if defined $self->{before_require};
+    unless ($no_req) {
+        my $tmp = $@;
+        my $res = eval { $self->_require($plugin) };
+        my $err = $@;
+        $@      = $tmp;
+        if ($err) {
+            if (defined $self->{on_error}) {
+                $self->{on_error}->($plugin, $err) || return; 
+            } else {
+                return;
+            }
+        }
+    }
+    $self->{after_require}->($plugin) || return if defined $self->{after_require};
+    push @$plugins, $plugin;
 }
 
 sub find_files {
@@ -273,7 +293,7 @@ sub find_files {
     { # for the benefit of perl 5.6.1's Find, localize topic
         local $_;
         File::Find::find( { no_chdir => 1, 
-                           wanted => sub { 
+                            wanted => sub { 
                              # Inlined from File::Find::Rule C< name => '*.pm' >
                              return unless $File::Find::name =~ /$file_regex/;
                              (my $path = $File::Find::name) =~ s#^\\./##;
@@ -294,10 +314,7 @@ sub handle_innerpackages {
     my @plugins;
 
     foreach my $plugin (Devel::InnerPackage::list_packages($path)) {
-        my $err = $self->handle_finding_plugin($plugin);
-        #next if $err;
-        #next unless $INC{$plugin};
-        push @plugins, $plugin;
+        $self->handle_finding_plugin($plugin, \@plugins, 1);
     }
     return @plugins;
 
@@ -305,11 +322,11 @@ sub handle_innerpackages {
 
 
 sub _require {
-    my $self = shift;
-    my $pack = shift;
-    local $@;
+    my $self   = shift;
+    my $pack   = shift;
     eval "CORE::require $pack";
-    return $@;
+    die ($@) if $@;
+    return 1;
 }
 
 
