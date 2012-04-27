@@ -273,6 +273,7 @@ sub find_files {
     { # for the benefit of perl 5.6.1's Find, localize topic
         local $_;
         File::Find::find( { no_chdir => 1, 
+                            follow => 1, 
                            wanted => sub { 
                              # Inlined from File::Find::Rule C< name => '*.pm' >
                              return unless $File::Find::name =~ /$file_regex/;
