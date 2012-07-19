@@ -226,6 +226,21 @@ and then later ...
 
     my @filters = $self->filters;
     my @plugins = $self->plugins;
+    
+=head1 PLUGIN SEARCHING
+
+Every time you call 'plugins' the whole search path is walked again. This allows 
+for dynamically loading plugins even at run time. However this can get expensive 
+and so if you don't expect to want to add new plugins at run time you could do
+
+
+  package Foo;
+  use strict;
+  use Module::Pluggable sub_name => '_plugins';
+
+  our @PLUGINS;
+  sub plugins { @PLUGINS ||= shift->_plugins }
+  1;
 
 =head1 INNER PACKAGES
 
