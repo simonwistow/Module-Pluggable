@@ -321,6 +321,12 @@ the extensions F<.swp> or F<.swo>, or files beginning with F<.#>.
 Setting C<include_editor_junk> changes C<Module::Pluggable> so it does
 not ignore any files it finds.
 
+=head2 follow_symlinks
+
+Whether, when searching directories, to follow symlinks.
+
+Defaults to 1 i.e do follow symlinks.
+
 =head1 TRIGGERS
 
 Various triggers can also be passed in to the options.

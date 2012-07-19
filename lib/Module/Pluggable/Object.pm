@@ -45,7 +45,10 @@ sub plugins {
         $self->{'search_path'} ||= ["${pkg}::Plugin"]; 
 
         # default error handler
-        $self->{on_error} ||= sub { my ($plugin, $err) = @_; carp "Couldn't require $plugin : $err"; return 0 };
+        $self->{'on_error'} ||= sub { my ($plugin, $err) = @_; carp "Couldn't require $plugin : $err"; return 0 };
+
+        # default whether to follow symlinks
+        $self->{'follow_symlinks'} = 1 unless exists $self->{'follow_symlinks'};
 
         #my %opts = %$self;
 
@@ -293,7 +296,7 @@ sub find_files {
     { # for the benefit of perl 5.6.1's Find, localize topic
         local $_;
         File::Find::find( { no_chdir => 1, 
-                            follow   => 1, 
+                            follow   => $self->{'follow_symlinks'}, 
                             wanted   => sub { 
                              # Inlined from File::Find::Rule C< name => '*.pm' >
                              return unless $File::Find::name =~ /$file_regex/;
