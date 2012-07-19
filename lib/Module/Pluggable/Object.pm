@@ -132,12 +132,16 @@ sub _is_legit {
     my %except = %{$self->{_exceptions}->{except_hash}||{}};
     my $only   = $self->{_exceptions}->{only};
     my $except = $self->{_exceptions}->{except};
+    my $depth  = () = split '::', $plugin, -1;
 
     return 0 if     (keys %only   && !$only{$plugin}     );
     return 0 unless (!defined $only || $plugin =~ m!$only!     );
 
     return 0 if     (keys %except &&  $except{$plugin}   );
     return 0 if     (defined $except &&  $plugin =~ m!$except! );
+    
+    return 0 if     defined $self->{max_depth} && $depth>$self->{max_depth};
+    return 0 if     defined $self->{min_depth} && $depth<$self->{min_depth};
 
     return 1;
 }

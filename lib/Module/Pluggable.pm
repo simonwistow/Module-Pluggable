@@ -327,6 +327,23 @@ Whether, when searching directories, to follow symlinks.
 
 Defaults to 1 i.e do follow symlinks.
 
+=head2 min_depth, max_depth
+
+This will allow you to set what 'depth' of plugin will be allowed.
+
+So, for example, C<MyClass::Plugin::Foo> will have a depth of 3 and 
+C<MyClass::Plugin::Foo::Bar> will have a depth of 4 so to only get the former 
+(i.e C<MyClass::Plugin::Foo>) do
+
+        package MyClass;
+        use Module::Pluggable max_depth => 3;
+        
+and to only get the latter (i.e C<MyClass::Plugin::Foo::Bar>)
+
+        package MyClass;
+        use Module::Pluggable min_depth => 4;
+
+
 =head1 TRIGGERS
 
 Various triggers can also be passed in to the options.
