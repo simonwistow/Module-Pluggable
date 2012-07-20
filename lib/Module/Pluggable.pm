@@ -1,7 +1,7 @@
 package Module::Pluggable;
 
 use strict;
-use vars qw($VERSION);
+use vars qw($VERSION $FORCE_SEARCH_ALL_PATHS);
 use Module::Pluggable::Object;
 
 # ObQuote:
@@ -10,6 +10,7 @@ use Module::Pluggable::Object;
 
 
 $VERSION = '4.0';
+$FORCE_SEARCH_ALL_PATHS = 0;
 
 sub import {
     my $class        = shift;
@@ -22,6 +23,7 @@ sub import {
     my ($package)    = $opts{'package'} || $pkg;
     $opts{filename}  = $file;
     $opts{package}   = $package;
+    $opts{force_search_all_paths} = $FORCE_SEARCH_ALL_PATHS unless exists $opts{force_search_all_paths};
 
 
     my $finder       = Module::Pluggable::Object->new(%opts);
@@ -381,7 +383,29 @@ search_path.
     $self->search_path( add => "New::Path" ); # add
     $self->search_path( new => "New::Path" ); # replace
 
+=head1 BEHAVIOUR UNDER TEST ENVIRONMENT
 
+In order to make testing reliable we exclude anything not from blib if blib.pm is 
+in %INC. 
+
+However if the module being tested used another module that itself used C<Module::Pluggable> 
+then the second module would fail. This was fixed by checking to see if the caller 
+had (^|/)blib/ in their filename.
+
+There's an argument that this is the wrong behaviour and that modules should explicitly
+trigger this behaviour but that particular code has been around for 7 years now and I'm 
+reluctant to change the default behaviour.
+
+You can now (as of version 4.1) force Module::Pluggable to look outside blib in a test environment by doing either
+
+        require Module::Pluggable;
+        $Module::Pluggable::FORCE_SEARCH_ALL_PATHS = 1;
+        import Module::Pluggable;
+
+or
+
+        use Module::Pluggable force_search_all_paths => 1;
+        
 
 =head1 FUTURE PLANS
 

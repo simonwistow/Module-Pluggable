@@ -1,3 +1,9 @@
+2012-07-20 - 4.1
+    Allow triggers on events which gives a powerful way to modify behaviour (Tim Brody, Dan Dascalescu, Paul Evans, Jens Rehsack)
+    Put documentation in about behaviour under blib and test, allow searching outside blib under test (suggestion from Stephen Baynes)
+    Made following symlinks the default behaviour, added ability to turn that off (Aran Deltac)
+    Fix installation path (Matthias Dietrich, Todd Rinaldo)
+
 2012-01-03 - 4.0
     Don't use defined on an array (it's deprecated)
 

@@ -54,7 +54,7 @@ sub plugins {
 
 
         # check to see if we're running under test
-        my @SEARCHDIR = exists $INC{"blib.pm"} && defined $filename && $filename =~ m!(^|/)blib/! ? grep {/blib/} @INC : @INC;
+        my @SEARCHDIR = exists $INC{"blib.pm"} && defined $filename && $filename =~ m!(^|/)blib/! && !$self->{'force_search_all_paths'} ? grep {/blib/} @INC : @INC;
 
         # add any search_dir params
         unshift @SEARCHDIR, @{$self->{'search_dirs'}} if defined $self->{'search_dirs'};
