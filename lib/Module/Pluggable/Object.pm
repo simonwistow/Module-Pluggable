@@ -50,20 +50,21 @@ sub plugins {
     # default whether to follow symlinks
     $self->{'follow_symlinks'} = 1 unless exists $self->{'follow_symlinks'};
 
-    #my %opts = %$self;
-
-
     # check to see if we're running under test
     my @SEARCHDIR = exists $INC{"blib.pm"} && defined $filename && $filename =~ m!(^|/)blib/! && !$self->{'force_search_all_paths'} ? grep {/blib/} @INC : @INC;
 
     # add any search_dir params
-    unshift @SEARCHDIR, @{$self->{'search_dirs'}} if defined $self->{'search_dirs'};
+    if (defined $self->{'search_dirs'}) {
+        unshift @SEARCHDIR, @{$self->{'search_dirs'}};
 
+        # set our @INC up to include and prefer our search_dirs if necessary
+        my @tmp = @INC;
+        unshift @t, @{$self->{'search_dirs'}};
+        local @INC = @tmp;
+    }
 
     my @plugins = $self->search_directories(@SEARCHDIR);
     push(@plugins, $self->handle_innerpackages($_)) for @{$self->{'search_path'}};
-
-    # push @plugins, map { print STDERR "$_\n"; $_->require } list_packages($_) for (@{$self->{'search_path'}});
     
     # return blank unless we've found anything
     return () unless @plugins;
