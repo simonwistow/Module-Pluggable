@@ -3,6 +3,7 @@ INSTALL
 lib/Devel/InnerPackage.pm
 lib/Module/Pluggable.pm
 lib/Module/Pluggable/Object.pm
+Build.PL
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
@@ -44,6 +45,8 @@ t/18skipped_package.t
 t/19can_ok_clobber.t
 t/20dodgy_files.t
 t/21editor_junk.t
+t/22trigger.t
+t/23depth.t
 t/acme/Acme/MyTest/Plugin/Foo.pm
 t/lib/Acme/Foo-Bar.pm
 t/lib/Acme/MyTest/Plugin/Foo.pm
@@ -67,8 +70,10 @@ t/lib/MyTest/Plugin/Quux/Foo.pm
 t/lib/No/Middle.pm
 t/lib/OddTest/Plugin/Foo.pm
 t/lib/TA/C/A/I.pm
-t/lib/TriggerTest/After.pm
-t/lib/TriggerTest/Callback.pm
-t/lib/TriggerTest/Deny.pm
-t/lib/TriggerTest/Error.pm
+t/lib/TriggerTest/Plugin/After.pm
+t/lib/TriggerTest/Plugin/CallbackAllow.pm
+t/lib/TriggerTest/Plugin/CallbackDeny.pm
+t/lib/TriggerTest/Plugin/Deny.pm
+t/lib/TriggerTest/Plugin/Error.pm
 t/lib/Zot/.Zork.pm
+META.json
