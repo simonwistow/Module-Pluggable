@@ -54,14 +54,12 @@ sub plugins {
     my @SEARCHDIR = exists $INC{"blib.pm"} && defined $filename && $filename =~ m!(^|/)blib/! && !$self->{'force_search_all_paths'} ? grep {/blib/} @INC : @INC;
 
     # add any search_dir params
-    if (defined $self->{'search_dirs'}) {
-        unshift @SEARCHDIR, @{$self->{'search_dirs'}};
+    unshift @SEARCHDIR, @{$self->{'search_dirs'}} if defined $self->{'search_dirs'};
 
-        # set our @INC up to include and prefer our search_dirs if necessary
-        my @tmp = @INC;
-        unshift @t, @{$self->{'search_dirs'}};
-        local @INC = @tmp;
-    }
+    # set our @INC up to include and prefer our search_dirs if necessary
+    my @tmp = @INC;
+    unshift @tmp, @{$self->{'search_dirs'}};
+    local @INC = @tmp if defined $self->{'search_dirs'};
 
     my @plugins = $self->search_directories(@SEARCHDIR);
     push(@plugins, $self->handle_innerpackages($_)) for @{$self->{'search_path'}};
@@ -80,7 +78,7 @@ sub plugins {
     # are we instantiating or requring?
     if (defined $self->{'instantiate'}) {
         my $method = $self->{'instantiate'};
-        return map { ($_->can($method)) ? $_->$method(@_) : () } keys %plugins;
+        return map { $_->can($method) ? $_->$method(@_) : () } keys %plugins;
     } else { 
         # no? just return the names
         return keys %plugins;
