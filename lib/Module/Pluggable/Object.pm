@@ -25,69 +25,65 @@ sub new {
 
 
 sub plugins {
-        my $self = shift;
+    my $self = shift;
 
-        # override 'require'
-        $self->{'require'} = 1 if $self->{'inner'};
+    # override 'require'
+    $self->{'require'} = 1 if $self->{'inner'};
 
-        my $filename   = $self->{'filename'};
-        my $pkg        = $self->{'package'};
+    my $filename   = $self->{'filename'};
+    my $pkg        = $self->{'package'};
 
-        # Get the exception params instantiated
-        $self->_setup_exceptions;
+    # Get the exception params instantiated
+    $self->_setup_exceptions;
 
-        # automatically turn a scalar search path or namespace into a arrayref
-        for (qw(search_path search_dirs)) {
-            $self->{$_} = [ $self->{$_} ] if exists $self->{$_} && !ref($self->{$_});
-        }
+    # automatically turn a scalar search path or namespace into a arrayref
+    for (qw(search_path search_dirs)) {
+        $self->{$_} = [ $self->{$_} ] if exists $self->{$_} && !ref($self->{$_});
+    }
 
-        # default search path is '<Module>::<Name>::Plugin'
-        $self->{'search_path'} ||= ["${pkg}::Plugin"]; 
+    # default search path is '<Module>::<Name>::Plugin'
+    $self->{'search_path'} ||= ["${pkg}::Plugin"]; 
 
-        # default error handler
-        $self->{'on_error'} ||= sub { my ($plugin, $err) = @_; carp "Couldn't require $plugin : $err"; return 0 };
+    # default error handler
+    $self->{'on_error'} ||= sub { my ($plugin, $err) = @_; carp "Couldn't require $plugin : $err"; return 0 };
 
-        # default whether to follow symlinks
-        $self->{'follow_symlinks'} = 1 unless exists $self->{'follow_symlinks'};
+    # default whether to follow symlinks
+    $self->{'follow_symlinks'} = 1 unless exists $self->{'follow_symlinks'};
 
-        #my %opts = %$self;
-
-
-        # check to see if we're running under test
-        my @SEARCHDIR = exists $INC{"blib.pm"} && defined $filename && $filename =~ m!(^|/)blib/! && !$self->{'force_search_all_paths'} ? grep {/blib/} @INC : @INC;
-
-        # add any search_dir params
-        unshift @SEARCHDIR, @{$self->{'search_dirs'}} if defined $self->{'search_dirs'};
+    #my %opts = %$self;
 
 
-        my @plugins = $self->search_directories(@SEARCHDIR);
-        push(@plugins, $self->handle_innerpackages($_)) for @{$self->{'search_path'}};
+    # check to see if we're running under test
+    my @SEARCHDIR = exists $INC{"blib.pm"} && defined $filename && $filename =~ m!(^|/)blib/! && !$self->{'force_search_all_paths'} ? grep {/blib/} @INC : @INC;
 
-        # push @plugins, map { print STDERR "$_\n"; $_->require } list_packages($_) for (@{$self->{'search_path'}});
-        
-        # return blank unless we've found anything
-        return () unless @plugins;
+    # add any search_dir params
+    unshift @SEARCHDIR, @{$self->{'search_dirs'}} if defined $self->{'search_dirs'};
 
 
+    my @plugins = $self->search_directories(@SEARCHDIR);
+    push(@plugins, $self->handle_innerpackages($_)) for @{$self->{'search_path'}};
 
-        # remove duplicates
-        # probably not necessary but hey ho
-        my %plugins;
-        for(@plugins) {
-            next unless $self->_is_legit($_);
-            $plugins{$_} = 1;
-        }
+    # push @plugins, map { print STDERR "$_\n"; $_->require } list_packages($_) for (@{$self->{'search_path'}});
+    
+    # return blank unless we've found anything
+    return () unless @plugins;
 
-        # are we instantiating or requring?
-        if (defined $self->{'instantiate'}) {
-            my $method = $self->{'instantiate'};
-            return map { ($_->can($method)) ? $_->$method(@_) : () } keys %plugins;
-        } else { 
-            # no? just return the names
-            return keys %plugins;
-        }
+    # remove duplicates
+    # probably not necessary but hey ho
+    my %plugins;
+    for(@plugins) {
+        next unless $self->_is_legit($_);
+        $plugins{$_} = 1;
+    }
 
-
+    # are we instantiating or requring?
+    if (defined $self->{'instantiate'}) {
+        my $method = $self->{'instantiate'};
+        return map { ($_->can($method)) ? $_->$method(@_) : () } keys %plugins;
+    } else { 
+        # no? just return the names
+        return keys %plugins;
+    }
 }
 
 sub _setup_exceptions {
