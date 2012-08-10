@@ -42,7 +42,7 @@ my $build = Module::Build
          build_requires => {
              'Test::More'      => '0.62',
          },
-         create_makefile_pl => 'passthrough',
+         create_makefile_pl => 'small',
        );
 
 $build->add_to_cleanup(@files);
