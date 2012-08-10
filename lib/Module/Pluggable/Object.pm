@@ -58,7 +58,7 @@ sub plugins {
 
     # set our @INC up to include and prefer our search_dirs if necessary
     my @tmp = @INC;
-    unshift @tmp, @{$self->{'search_dirs'}};
+    unshift @tmp, @{$self->{'search_dirs'} || []};
     local @INC = @tmp if defined $self->{'search_dirs'};
 
     my @plugins = $self->search_directories(@SEARCHDIR);
