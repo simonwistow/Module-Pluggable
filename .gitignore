@@ -1,8 +1,12 @@
 Makefile
+Makefile.PL
 Build
 blib
 pm_to_blib
+_build
 t/lib/EditorJunk/Plugin/.#Bar.pm
+t/lib/EditorJunk/Plugin/#Bar.pm#
 t/lib/OddTest/Plugin/-Dodgy.pm
 *.tar.gz
 META.*
+MYMETA.*
