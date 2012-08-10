@@ -10,3 +10,4 @@ t/lib/OddTest/Plugin/-Dodgy.pm
 *.tar.gz
 META.*
 MYMETA.*
+*.bak
