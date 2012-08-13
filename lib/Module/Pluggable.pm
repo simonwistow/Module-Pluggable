@@ -358,13 +358,21 @@ Gets passed the plugin name.
 
 If 0 is returned then this plugin will not be required either.
 
-=head2 on_error <plugin> <err>
+=head2 on_require_error <plugin> <err>
 
 Gets called when there's an error on requiring the plugin.
 
 Gets passed the plugin name and the error. 
 
-The default on_error handler is to C<carp> the error and return 0.
+The default on_require_error handler is to C<carp> the error and return 0.
+
+=head2 on_instantiate_error <plugin> <err>
+
+Gets called when there's an error on instantiating the plugin.
+
+Gets passed the plugin name and the error. 
+
+The default on_instantiate_error handler is to C<carp> the error and return 0.
 
 =head2 after_require <plugin>
 

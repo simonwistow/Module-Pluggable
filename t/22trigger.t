@@ -20,10 +20,10 @@ package TriggerTest;
 
 our @ERRORS;
 use strict;
-use Module::Pluggable require        => 1,
-                      on_error       => sub { my $p = shift; push @ERRORS, $p; return 0 },
-                      before_require => sub { my $p = shift; return !($p eq "TriggerTest::Plugin::Deny") },
-                      after_require  => sub { my $p = shift; return !($p->can('exclude') && $p->exclude) };
+use Module::Pluggable require          => 1,
+                      on_require_error => sub { my $p = shift; push @ERRORS, $p; return 0 },
+                      before_require   => sub { my $p = shift; return !($p eq "TriggerTest::Plugin::Deny") },
+                      after_require    => sub { my $p = shift; return !($p->can('exclude') && $p->exclude) };
 
 sub new {
     my $class = shift;

@@ -26,6 +26,7 @@ sub new {
 
 sub plugins {
     my $self = shift;
+    my @args = @_;
 
     # override 'require'
     $self->{'require'} = 1 if $self->{'inner'};
@@ -45,7 +46,8 @@ sub plugins {
     $self->{'search_path'} ||= ["${pkg}::Plugin"]; 
 
     # default error handler
-    $self->{'on_error'} ||= sub { my ($plugin, $err) = @_; carp "Couldn't require $plugin : $err"; return 0 };
+    $self->{'on_require_error'} ||= sub { my ($plugin, $err) = @_; carp "Couldn't require $plugin : $err"; return 0 };
+    $self->{'on_instantiate_error'} ||= sub { my ($plugin, $err) = @_; carp "Couldn't instantiate $plugin: $err"; return 0 };
 
     # default whether to follow symlinks
     $self->{'follow_symlinks'} = 1 unless exists $self->{'follow_symlinks'};
@@ -78,7 +80,14 @@ sub plugins {
     # are we instantiating or requring?
     if (defined $self->{'instantiate'}) {
         my $method = $self->{'instantiate'};
-        return map { $_->can($method) ? $_->$method(@_) : () } keys %plugins;
+        my @objs   = ();
+        foreach my $package (keys %plugins) {
+			next unless $package->can($method);
+            my $obj = eval { $package->new(@_) };
+	        $self->{'on_instantiate_error'}->($package, $@) if $@;
+            push @objs, $obj if $obj;           
+        }
+        return @objs;
     } else { 
         # no? just return the names
         return keys %plugins;
@@ -271,8 +280,8 @@ sub handle_finding_plugin {
         my $err = $@;
         $@      = $tmp;
         if ($err) {
-            if (defined $self->{on_error}) {
-                $self->{on_error}->($plugin, $err) || return; 
+            if (defined $self->{on_require_error}) {
+                $self->{on_require_error}->($plugin, $err) || return; 
             } else {
                 return;
             }
