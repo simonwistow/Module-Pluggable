@@ -13,8 +13,25 @@ ok(@plugins = $foo->plugins,  "Ran plugins");
 ok(@errors  = $foo->errors,   "Got errors");
 is_deeply([sort @plugins], ['TriggerTest::Plugin::After', 'TriggerTest::Plugin::CallbackAllow'], "Got the correct plugins");
 is_deeply([@errors], ['TriggerTest::Plugin::Error'], "Got the correct errors");
-ok(keys %{TriggerTest::Plugin::CallbackDeny::}, "CallbackDeny has been required");
-ok(!keys %{TriggerTest::Plugin::Deny::}, "Deny has not been required");
+ok(_is_loaded('TriggerTest::Plugin::CallbackDeny'), "CallbackDeny has been required");
+ok(!_is_loaded('TriggerTest::Plugin::Deny'), "Deny has not been required");
+
+
+# Stolen from Module::Loaded by Chris Williams (bingOs)
+sub _is_loaded {
+    my $pm      = shift;
+    my $file    = __PACKAGE__->_pm_to_file( $pm ) or return;
+    return $INC{$file} if exists $INC{$file};
+    return;
+}
+
+sub _pm_to_file {
+    my $pkg = shift;
+    my $pm  = shift or return;
+    my $file = join '/', split '::', $pm;
+    $file .= '.pm';
+    return $file;
+}
 
 package TriggerTest;
 
