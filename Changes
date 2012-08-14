@@ -1,3 +1,6 @@
+2012-08-14 - 4.2
+    Fix a problem with installation directory (Jerry D. Hedden)
+
 2012-07-20 - 4.1
     Allow triggers on events which gives a powerful way to modify behaviour (Tim Brody, Dan Dascalescu, Paul Evans, Jens Rehsack)
     Put documentation in about behaviour under blib and test, allow searching outside blib under test (suggestion from Stephen Baynes)

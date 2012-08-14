@@ -9,7 +9,7 @@ use Module::Pluggable::Object;
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '4.1';
+$VERSION = '4.2';
 $FORCE_SEARCH_ALL_PATHS = 0;
 
 sub import {
