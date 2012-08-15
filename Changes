@@ -1,3 +1,7 @@
+2012-08-15 - 4.3
+    Fix calling the correct method when instantiating (Doh!)
+    Hopefully stop smoker failures
+
 2012-08-14 - 4.2
     Fix a problem with installation directory (Jerry D. Hedden)
 
