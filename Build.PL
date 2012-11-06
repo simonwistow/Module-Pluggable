@@ -43,7 +43,7 @@ my $build = Module::Build
              'Test::More'      => '0.62',
          },
          create_makefile_pl    => 'small',
-         installdirs           => ((($] >= 5.008009) || ($] < 5.011)) ? 'core' : 'site'),
+         installdirs           => ((($] >= 5.008009) && ($] < 5.011)) ? 'core' : 'site'),
        );
 
 $build->add_to_cleanup(@files);
