@@ -1,3 +1,7 @@
+2012-11-05 - 4.5
+    Fix docs
+    Fix problem with PAUSE upload
+    
 2012-11-05 - 4.4
     Fix hash ordering bug in tests (Yves Orton)
     Fix install dir (Tatsuhiko Miyagawa)
