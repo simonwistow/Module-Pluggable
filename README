@@ -137,6 +137,20 @@ ADVANCED USAGE
 
         my @filters = $self->filters;
         my @plugins = $self->plugins;
+    
+PLUGIN SEARCHING
+    Every time you call 'plugins' the whole search path is walked again.
+    This allows for dynamically loading plugins even at run time. However
+    this can get expensive and so if you don't expect to want to add new
+    plugins at run time you could do
+
+      package Foo;
+      use strict;
+      use Module::Pluggable sub_name => '_plugins';
+
+      our @PLUGINS;
+      sub plugins { @PLUGINS ||= shift->_plugins }
+      1;
 
 INNER PACKAGES
     If you have, for example, a file lib/Something/Plugin/Foo.pm that
@@ -204,6 +218,58 @@ OPTIONS
     Setting "include_editor_junk" changes "Module::Pluggable" so it does not
     ignore any files it finds.
 
+  follow_symlinks
+    Whether, when searching directories, to follow symlinks.
+
+    Defaults to 1 i.e do follow symlinks.
+
+  min_depth, max_depth
+    This will allow you to set what 'depth' of plugin will be allowed.
+
+    So, for example, "MyClass::Plugin::Foo" will have a depth of 3 and
+    "MyClass::Plugin::Foo::Bar" will have a depth of 4 so to only get the
+    former (i.e "MyClass::Plugin::Foo") do
+
+            package MyClass;
+            use Module::Pluggable max_depth => 3;
+        
+    and to only get the latter (i.e "MyClass::Plugin::Foo::Bar")
+
+            package MyClass;
+            use Module::Pluggable min_depth => 4;
+
+TRIGGERS
+    Various triggers can also be passed in to the options.
+
+    If any of these triggers return 0 then the plugin will not be returned.
+
+  before_require <plugin>
+    Gets passed the plugin name.
+
+    If 0 is returned then this plugin will not be required either.
+
+  on_require_error <plugin> <err>
+    Gets called when there's an error on requiring the plugin.
+
+    Gets passed the plugin name and the error.
+
+    The default on_require_error handler is to "carp" the error and return
+    0.
+
+  on_instantiate_error <plugin> <err>
+    Gets called when there's an error on instantiating the plugin.
+
+    Gets passed the plugin name and the error.
+
+    The default on_instantiate_error handler is to "carp" the error and
+    return 0.
+
+  after_require <plugin>
+    Gets passed the plugin name.
+
+    If 0 is returned then this plugin will be required but not returned as a
+    plugin.
+
 METHODs
   search_path
     The method "search_path" is exported into you namespace as well. You can
@@ -212,6 +278,30 @@ METHODs
         $self->search_path( add => "New::Path" ); # add
         $self->search_path( new => "New::Path" ); # replace
 
+BEHAVIOUR UNDER TEST ENVIRONMENT
+    In order to make testing reliable we exclude anything not from blib if
+    blib.pm is in %INC.
+
+    However if the module being tested used another module that itself used
+    "Module::Pluggable" then the second module would fail. This was fixed by
+    checking to see if the caller had (^|/)blib/ in their filename.
+
+    There's an argument that this is the wrong behaviour and that modules
+    should explicitly trigger this behaviour but that particular code has
+    been around for 7 years now and I'm reluctant to change the default
+    behaviour.
+
+    You can now (as of version 4.1) force Module::Pluggable to look outside
+    blib in a test environment by doing either
+
+            require Module::Pluggable;
+            $Module::Pluggable::FORCE_SEARCH_ALL_PATHS = 1;
+            import Module::Pluggable;
+
+    or
+
+            use Module::Pluggable force_search_all_paths => 1;
+        
 FUTURE PLANS
     This does everything I need and I can't really think of any other
     features I want to add. Famous last words of course
@@ -220,6 +310,11 @@ FUTURE PLANS
     with PAR but there are still some issues.
 
     However suggestions (and patches) are welcome.
+
+DEVELOPMENT
+    The master repo for this module is at
+
+    https://github.com/simonwistow/Module-Pluggable
 
 AUTHOR
     Simon Wistow <simon@thegestalt.org>
