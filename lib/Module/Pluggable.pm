@@ -4,6 +4,8 @@ use strict;
 use vars qw($VERSION $FORCE_SEARCH_ALL_PATHS);
 use Module::Pluggable::Object;
 
+use if $] > 5.017, 'deprecate';
+
 # ObQuote:
 # Bob Porter: Looks like you've been missing a lot of work lately. 
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
