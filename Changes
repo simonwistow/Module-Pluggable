@@ -1,3 +1,6 @@
+2013-02-25 - 4.7
+    Fix more hash ordering bugs in tests by forcing sort of returned plugins (Yves Orton)
+
 2013-01-23 - 4.6
     Add warning about future removal from core
 
