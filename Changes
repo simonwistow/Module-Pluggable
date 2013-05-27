@@ -1,5 +1,6 @@
 2013-05-27 - 4.8
     Fix some typos (David Steinbrunner)
+    Fix error in testing when Text::BibTex is installed (thanks to Andreas Koenig)
     
 2013-02-25 - 4.7
     Fix more hash ordering bugs in tests by forcing sort of returned plugins (Yves Orton)
