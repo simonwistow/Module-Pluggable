@@ -10,7 +10,7 @@ use vars qw($VERSION);
 
 use if $] > 5.017, 'deprecate';
 
-$VERSION = '4.6';
+$VERSION = '4.8';
 
 
 sub new {
