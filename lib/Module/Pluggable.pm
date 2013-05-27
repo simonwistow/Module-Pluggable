@@ -128,10 +128,10 @@ core code. For that, you might do something like ...
 
 .. and all the plugins will get a chance in turn to look at it.
 
-This can be trivally extended so that plugins could save the email
+This can be trivially extended so that plugins could save the email
 somewhere and then no other plugin should try and do that. 
 Simply have it so that the C<examine> method returns C<1> if 
-it has saved the email somewhere. You might also wnat to be paranoid
+it has saved the email somewhere. You might also want to be paranoid
 and check to see if the plugin has an C<examine> method.
 
         foreach my $plugin ($self->plugins) {
@@ -272,7 +272,7 @@ An array ref of namespaces to look in.
 
 =head2 search_dirs 
 
-An array ref of directorys to look in before @INC.
+An array ref of directories to look in before @INC.
 
 =head2 instantiate
 

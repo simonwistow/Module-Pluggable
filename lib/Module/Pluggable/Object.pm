@@ -79,7 +79,7 @@ sub plugins {
         $plugins{$_} = 1;
     }
 
-    # are we instantiating or requring?
+    # are we instantiating or requiring?
     if (defined $self->{'instantiate'}) {
         my $method = $self->{'instantiate'};
         my @objs   = ();
