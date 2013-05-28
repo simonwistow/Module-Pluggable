@@ -45,6 +45,11 @@ my $build = Module::Build
          },
          create_makefile_pl    => 'small',
          installdirs           => ((($] >= 5.008009) && ($] < 5.011)) ? 'core' : 'site'),
+         meta_merge     => {
+           resources => {
+             repository  => 'https://github.com/simonwistow/Module-Pluggable',
+           }
+         },
        );
 
 $build->add_to_cleanup(@files);
