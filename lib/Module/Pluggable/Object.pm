@@ -234,7 +234,7 @@ sub search_paths {
             }
             my $plugin = join '::', $searchpath, @dirs, $name;
 
-            next unless $plugin =~ m!(?:[a-z\d]+)[a-z\d]!i;
+            next unless $plugin =~ m!(?:[a-z\d]+)[a-z\d]*!i;
 
             $self->handle_finding_plugin($plugin, \@plugins)
         }
