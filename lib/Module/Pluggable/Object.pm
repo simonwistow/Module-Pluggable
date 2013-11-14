@@ -67,7 +67,8 @@ sub plugins {
 
     my @plugins = $self->search_directories(@SEARCHDIR);
     push(@plugins, $self->handle_innerpackages($_)) for @{$self->{'search_path'}};
-    
+    push(@plugins, $self->handle_fatpacked($_)) for @{$self->{'search_path'}};
+
     # return blank unless we've found anything
     return () unless @plugins;
 
@@ -333,6 +334,22 @@ sub handle_innerpackages {
     }
     return @plugins;
 
+}
+
+sub handle_fatpacked {
+    my $self = shift;
+    return () if (exists $self->{fatpack} && !$self->{fatpack});
+
+    my $path = shift;
+    my @plugins;
+
+    foreach my $plugin (keys %main::fatpacked) {
+        $plugin =~ s/\.pm$//;
+        $plugin =~ s{/}{::}g;
+        next unless $plugin =~ m!^${path}::!;
+        $self->handle_finding_plugin($plugin, \@plugins, 1);
+    }
+    return @plugins;
 }
 
 
