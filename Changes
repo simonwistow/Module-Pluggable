@@ -1,3 +1,6 @@
+2013-12-20 - 5.0
+    Gain support for @INC hooks and hence for App::FatPacker (thanks to Diab Jerius)
+
 2013-10-22 - 4.9
     Fix the fact that we can't handle single letter package names (thanks sbaynes)
 

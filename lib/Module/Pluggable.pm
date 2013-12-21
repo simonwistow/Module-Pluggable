@@ -11,7 +11,7 @@ use if $] > 5.017, 'deprecate';
 # Peter Gibbons: I wouldn't say I've been missing it, Bob! 
 
 
-$VERSION = '4.9';
+$VERSION = '5.0';
 $FORCE_SEARCH_ALL_PATHS = 0;
 
 sub import {
@@ -415,18 +415,23 @@ You can now (as of version 4.1) force Module::Pluggable to look outside blib in 
 or
 
         use Module::Pluggable force_search_all_paths => 1;
-        
+
+=head1 @INC hooks and App::FatPacker
+
+If a module's @INC has a hook and that hook is an object which has a C<files()> method then we will
+try and require those files too. See C<t/26inc_hook.t> for an example.
+
+This has allowed L<App::FatPacker> (as of version 0.10.0) to provide support for Module::Pluggable.
+
+This should also, theoretically, allow someone to modify PAR to do the same thing.
 
 =head1 FUTURE PLANS
 
 This does everything I need and I can't really think of any other 
-features I want to add. Famous last words of course
+features I want to add. Famous last words of course (not least 
+because we're up to version 5.0 at the time of writing).
 
-Recently tried fixed to find inner packages and to make it 
-'just work' with PAR but there are still some issues.
-
-
-However suggestions (and patches) are welcome.
+However suggestions (and patches) are always welcome.
 
 =head1 DEVELOPMENT
 

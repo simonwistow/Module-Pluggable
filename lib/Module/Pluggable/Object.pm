@@ -10,7 +10,7 @@ use vars qw($VERSION);
 
 use if $] > 5.017, 'deprecate';
 
-$VERSION = '4.8';
+$VERSION = '5.0';
 
 
 sub new {
@@ -66,6 +66,7 @@ sub plugins {
     local @INC = @tmp if defined $self->{'search_dirs'};
 
     my @plugins = $self->search_directories(@SEARCHDIR);
+    push(@plugins, $self->handle_inc_hooks($_, @SEARCHDIR)) for @{$self->{'search_path'}};
     push(@plugins, $self->handle_innerpackages($_)) for @{$self->{'search_path'}};
     
     # return blank unless we've found anything
@@ -319,6 +320,25 @@ sub find_files {
     #chdir $cwd;
     return @files;
 
+}
+
+sub handle_inc_hooks {
+    my $self      = shift;
+    my $path      = shift;
+    my @SEARCHDIR = @_;
+
+    my @plugins;
+    for my $dir ( @SEARCHDIR ) {
+        next unless ref $dir && eval { $dir->can( 'files' ) };
+
+        foreach my $plugin ( $dir->files ) {
+            $plugin =~ s/\.pm$//;
+            $plugin =~ s{/}{::}g;
+            next unless $plugin =~ m!^${path}::!;
+            $self->handle_finding_plugin( $plugin, \@plugins );
+        }
+    }
+    return @plugins;
 }
 
 sub handle_innerpackages {
