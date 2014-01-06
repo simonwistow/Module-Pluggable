@@ -1,3 +1,6 @@
+2014-01-05 - 5.1
+    Add in missing files left out of the MANIFEST due to stupidity (thanks to Petr Pisar)
+
 2013-12-20 - 5.0
     Gain support for @INC hooks and hence for App::FatPacker (thanks to Diab Jerius)
 
