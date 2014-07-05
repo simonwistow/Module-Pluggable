@@ -36,6 +36,7 @@ my $build = Module::Build
              'if'              => '0',
              'File::Basename'  => '0',
              'File::Spec'      => '3.00',
+             'Exporter'        => '5.57',  # use Exporter 'import'
          },
          configure_requires => {
               'Module::Build'  => '0.38', 
