@@ -1,7 +1,7 @@
 package Devel::InnerPackage;
 
 use strict;
-use base qw(Exporter);
+use Exporter 5.57 'import';
 use vars qw($VERSION @EXPORT_OK);
 
 use if $] > 5.017, 'deprecate';
