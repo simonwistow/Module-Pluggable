@@ -6,6 +6,7 @@ use File::Basename;
 use File::Spec::Functions qw(splitdir catdir curdir catfile abs2rel);
 use Carp qw(croak carp confess);
 use Devel::InnerPackage;
+use Module::Runtime qw(require_module);
 use vars qw($VERSION);
 
 use if $] > 5.017, 'deprecate';
@@ -280,7 +281,7 @@ sub handle_finding_plugin {
     $self->{before_require}->($plugin) || return if defined $self->{before_require};
     unless ($no_req) {
         my $tmp = $@;
-        my $res = eval { $self->_require($plugin) };
+        my $res = eval { require_module($plugin) };
         my $err = $@;
         $@      = $tmp;
         if ($err) {
@@ -354,16 +355,6 @@ sub handle_innerpackages {
     return @plugins;
 
 }
-
-
-sub _require {
-    my $self   = shift;
-    my $pack   = shift;
-    eval "CORE::require $pack";
-    die ($@) if $@;
-    return 1;
-}
-
 
 1;
 

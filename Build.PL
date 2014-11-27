@@ -37,6 +37,7 @@ my $build = Module::Build
              'File::Basename'  => '0',
              'File::Spec'      => '3.00',
              'Exporter'        => '5.57',  # use Exporter 'import'
+             'Module::Runtime' => '0.012', # core bug workarounds
          },
          configure_requires => {
               'Module::Build'  => '0.38', 
