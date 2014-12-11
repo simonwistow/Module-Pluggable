@@ -43,6 +43,9 @@ my $build = Module::Build
          build_requires => {
              'Test::More'      => '0.62',
          },
+         recommends => {
+             'Module::Runtime' => '0.012',
+         },
          create_makefile_pl    => 'small',
          installdirs           => ((($] >= 5.008009) && ($] < 5.011)) ? 'core' : 'site'),
          meta_merge     => {

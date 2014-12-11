@@ -6,11 +6,19 @@ use File::Basename;
 use File::Spec::Functions qw(splitdir catdir curdir catfile abs2rel);
 use Carp qw(croak carp confess);
 use Devel::InnerPackage;
-use vars qw($VERSION);
+use vars qw($VERSION $MR);
 
 use if $] > 5.017, 'deprecate';
 
-$VERSION = '5.1';
+$VERSION = '5.2';
+
+BEGIN {
+    eval {  require Module::Runtime };
+    unless ($@) {
+        $MR = 1;
+        Module::Runtime->import('require_module');
+    }
+}
 
 
 sub new {
@@ -359,6 +367,8 @@ sub handle_innerpackages {
 sub _require {
     my $self   = shift;
     my $pack   = shift;
+    return require_module($pack) if $MR;
+
     eval "CORE::require $pack";
     die ($@) if $@;
     return 1;
