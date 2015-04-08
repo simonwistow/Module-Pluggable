@@ -202,6 +202,7 @@ sub search_paths {
             my @pkg_dirs = ();
             if ( $name eq lc($name) || $name eq uc($name) ) {
                 my $pkg_file = catfile($sp, $directory, "$name$suffix");
+                next unless -r $pkg_file; # Skip files we can't read
                 open PKGFILE, "<$pkg_file" or die "search_paths: Can't open $pkg_file: $!";
                 my $in_pod = 0;
                 while ( my $line = <PKGFILE> ) {
