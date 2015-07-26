@@ -45,9 +45,23 @@ my %WriteMakefileArgs = (
         'File::Basename'        => '0',
         'File::Spec'            => '3.00',
         'Exporter'              => '5.57',  # use Exporter 'import'
+        'File::Find'            => '0',
+        'File::Spec::Functions' => '0',
+        'strict'                => '0',
     },
     TEST_REQUIRES => {
         'Test::More'            => '0',
+        'Cwd'                   => '0',
+        'Data::Dumper'          => '0',
+        'File::Copy'            => '0',
+        'File::Find'            => '0',
+        'File::Path'            => '0',
+        'File::Spec::Functions' => '0',
+        'File::Temp'            => '0',
+        'base'                  => '0',
+        'FindBin'               => '0',
+        'strict'                => '0',
+        'warnings'              => '0',
     },
 
     META_MERGE => {
@@ -68,6 +82,11 @@ my %WriteMakefileArgs = (
             runtime => {
                 recommends => {
                     'Module::Runtime' => '0.012',
+                },
+            },
+            test => {
+                suggests => {
+                    'App::Fatpacker' => '0.010000',
                 },
             },
         },
