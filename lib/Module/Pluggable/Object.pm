@@ -15,8 +15,14 @@ $VERSION = '5.2';
 BEGIN {
     eval {  require Module::Runtime };
     unless ($@) {
-        $MR = 1;
         Module::Runtime->import('require_module');
+    } else {
+        *require_module = sub {
+            my $module = shift;
+            my $path   = $module . ".pm";
+            $path =~ s{::}{/}g;
+            require $path;
+        };
     }
 }
 
@@ -288,7 +294,7 @@ sub handle_finding_plugin {
     $self->{before_require}->($plugin) || return if defined $self->{before_require};
     unless ($no_req) {
         my $tmp = $@;
-        my $res = eval { $self->_require($plugin) };
+        my $res = eval { require_module($plugin) };
         my $err = $@;
         $@      = $tmp;
         if ($err) {
@@ -362,18 +368,6 @@ sub handle_innerpackages {
     return @plugins;
 
 }
-
-
-sub _require {
-    my $self   = shift;
-    my $pack   = shift;
-    return require_module($pack) if $MR;
-
-    eval "CORE::require $pack";
-    die ($@) if $@;
-    return 1;
-}
-
 
 1;
 
