@@ -1,5 +1,5 @@
 use strict;
-use Module::Build;
+use ExtUtils::MakeMaker;
 use FindBin;
 use File::Spec::Functions qw(catfile);
 
@@ -29,31 +29,30 @@ unless (grep { lc($^O) eq $_ } qw(vms vos)) {
     }
 }
 
-my $build = Module::Build
-  ->new( module_name => "Module::Pluggable",
-         license     => 'perl',
-         requires    => {
-             'if'              => '0',
-             'File::Basename'  => '0',
-             'File::Spec'      => '3.00',
-             'Exporter'        => '5.57',  # use Exporter 'import'
-         },
-         configure_requires => {
-              'Module::Build'  => '0.38', 
-         },
-         build_requires => {
-             'Test::More'      => '0.62',
-         },
-         create_makefile_pl    => 'small',
-         installdirs           => ((($] >= 5.008009) && ($] < 5.011)) ? 'core' : 'site'),
-         meta_merge     => {
-           resources => {
-             repository  => 'https://github.com/simonwistow/Module-Pluggable',
-           }
-         },
-       );
-
-$build->add_to_cleanup(@files);
-$build->build_elements([grep { $_ ne 'pod' } @{$build->build_elements}]) if $core;
-$build->create_build_script;
-
+WriteMakefile(
+    NAME => "Module::Pluggable",
+    VERSION_FROM => 'lib/Module/Pluggable.pm',
+    LICENSE => 'perl',
+    PREREQ_PM    => {
+        'if'              => '0',
+        'File::Basename'  => '0',
+        'File::Spec'      => '3.00',
+        'Exporter'        => '5.57',  # use Exporter 'import'
+    },
+    BUILD_REQUIRES => {
+        'Test::More'      => '0.62',
+    },
+    TEST_REQUIRES => {
+        'App::FatPacker'  >= '0.10.0',
+    },
+    clean => { FILES => @files },
+    META_MERGE     => {
+        resources => {
+            repository  => {
+                type => 'git',
+                url => 'git://github.com/simonwistow/Module-Pluggable',
+                web => 'https://github.com/simonwistow/Module-Pluggable',
+            },
+        },
+    },
+);

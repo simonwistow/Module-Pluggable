@@ -1,4 +1,3 @@
-Build.PL
 Changes
 INSTALL
 lib/Devel/InnerPackage.pm
@@ -7,8 +6,6 @@ lib/Module/Pluggable/Object.pm
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
-META.json
-META.yml
 README
 t/01use.t
 t/02alsoworks.t
