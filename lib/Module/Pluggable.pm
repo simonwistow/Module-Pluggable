@@ -7,21 +7,21 @@ use Module::Pluggable::Object;
 use if $] > 5.017, 'deprecate';
 
 # ObQuote:
-# Bob Porter: Looks like you've been missing a lot of work lately. 
-# Peter Gibbons: I wouldn't say I've been missing it, Bob! 
+# Bob Porter: Looks like you've been missing a lot of work lately.
+# Peter Gibbons: I wouldn't say I've been missing it, Bob!
 
 
-$VERSION = '5.1';
+$VERSION = '5.2';
 $FORCE_SEARCH_ALL_PATHS = 0;
 
 sub import {
     my $class        = shift;
     my %opts         = @_;
 
-    my ($pkg, $file) = caller; 
+    my ($pkg, $file) = caller;
     # the default name for the method is 'plugins'
     my $sub          = $opts{'sub_name'}  || 'plugins';
-    # get our package 
+    # get our package
     my ($package)    = $opts{'package'} || $pkg;
     $opts{filename}  = $file;
     $opts{package}   = $package;
@@ -48,7 +48,7 @@ sub import {
         if (defined $only) {
             $finder->{'only'} = $only;
         };
-        
+
         return $finder->{'only'};
     };
 
@@ -58,14 +58,14 @@ sub import {
         if (defined $except) {
             $finder->{'except'} = $except;
         };
-        
+
         return $finder->{'except'};
     };
 
 
     no strict 'refs';
     no warnings qw(redefine prototype);
-    
+
     *{"$package\::$sub"}        = $subroutine;
     *{"$package\::search_path"} = $searchsub;
     *{"$package\::only"}        = $onlysub;
@@ -88,23 +88,23 @@ Simple use Module::Pluggable -
 
     package MyClass;
     use Module::Pluggable;
-    
+
 
 and then later ...
 
     use MyClass;
     my $mc = MyClass->new();
     # returns the names of all plugins installed under MyClass::Plugin::*
-    my @plugins = $mc->plugins(); 
+    my @plugins = $mc->plugins();
 
 =head1 EXAMPLE
 
 Why would you want to do this? Say you have something that wants to pass an
-object to a number of different plugins in turn. For example you may 
+object to a number of different plugins in turn. For example you may
 want to extract meta-data from every email you get sent and do something
-with it. Plugins make sense here because then you can keep adding new 
-meta data parsers and all the logic and docs for each one will be 
-self contained and new handlers are easy to add without changing the 
+with it. Plugins make sense here because then you can keep adding new
+meta data parsers and all the logic and docs for each one will be
+self contained and new handlers are easy to add without changing the
 core code. For that, you might do something like ...
 
     package Email::Examiner;
@@ -129,8 +129,8 @@ core code. For that, you might do something like ...
 .. and all the plugins will get a chance in turn to look at it.
 
 This can be trivially extended so that plugins could save the email
-somewhere and then no other plugin should try and do that. 
-Simply have it so that the C<examine> method returns C<1> if 
+somewhere and then no other plugin should try and do that.
+Simply have it so that the C<examine> method returns C<1> if
 it has saved the email somewhere. You might also want to be paranoid
 and check to see if the plugin has an C<examine> method.
 
@@ -145,12 +145,12 @@ And so on. The sky's the limit.
 
 =head1 DESCRIPTION
 
-Provides a simple but, hopefully, extensible way of having 'plugins' for 
+Provides a simple but, hopefully, extensible way of having 'plugins' for
 your module. Obviously this isn't going to be the be all and end all of
 solutions but it works for me.
 
-Essentially all it does is export a method into your namespace that 
-looks through a search path for .pm files and turn those into class names. 
+Essentially all it does is export a method into your namespace that
+looks through a search path for .pm files and turn those into class names.
 
 Optionally it instantiates those classes for you.
 
@@ -172,7 +172,7 @@ Or if you want to look in another namespace
     package MyClass;
     use Module::Pluggable search_path => ['Acme::MyClass::Plugin', 'MyClass::Extend'];
 
-or directory 
+or directory
 
     use Module::Pluggable search_dirs => ['mylibs/Foo'];
 
@@ -184,9 +184,9 @@ Or if you want to instantiate each plugin rather than just return the name
 
 and then
 
-    # whatever is passed to 'plugins' will be passed 
-    # to 'new' for each plugin 
-    my @plugins = $mc->plugins(@options); 
+    # whatever is passed to 'plugins' will be passed
+    # to 'new' for each plugin
+    my @plugins = $mc->plugins(@options);
 
 
 alternatively you can just require the module without instantiating it
@@ -230,11 +230,11 @@ and then later ...
 
     my @filters = $self->filters;
     my @plugins = $self->plugins;
-    
+
 =head1 PLUGIN SEARCHING
 
-Every time you call 'plugins' the whole search path is walked again. This allows 
-for dynamically loading plugins even at run time. However this can get expensive 
+Every time you call 'plugins' the whole search path is walked again. This allows
+for dynamically loading plugins even at run time. However this can get expensive
 and so if you don't expect to want to add new plugins at run time you could do
 
 
@@ -249,9 +249,9 @@ and so if you don't expect to want to add new plugins at run time you could do
 =head1 INNER PACKAGES
 
 If you have, for example, a file B<lib/Something/Plugin/Foo.pm> that
-contains package definitions for both C<Something::Plugin::Foo> and 
-C<Something::Plugin::Bar> then as long as you either have either 
-the B<require> or B<instantiate> option set then we'll also find 
+contains package definitions for both C<Something::Plugin::Foo> and
+C<Something::Plugin::Bar> then as long as you either have either
+the B<require> or B<instantiate> option set then we'll also find
 C<Something::Plugin::Bar>. Nifty!
 
 =head1 OPTIONS
@@ -262,22 +262,22 @@ The options can be ...
 
 =head2 sub_name
 
-The name of the subroutine to create in your namespace. 
+The name of the subroutine to create in your namespace.
 
 By default this is 'plugins'
 
 =head2 search_path
 
-An array ref of namespaces to look in. 
+An array ref of namespaces to look in.
 
-=head2 search_dirs 
+=head2 search_dirs
 
 An array ref of directories to look in before @INC.
 
 =head2 instantiate
 
 Call this method on the class. In general this will probably be 'new'
-but it can be whatever you want. Whatever arguments are passed to 'plugins' 
+but it can be whatever you want. Whatever arguments are passed to 'plugins'
 will be passed to the method.
 
 The default is 'undef' i.e just return the class name.
@@ -288,18 +288,18 @@ Just require the class, don't instantiate (overrides 'instantiate');
 
 =head2 inner
 
-If set to 0 will B<not> search inner packages. 
+If set to 0 will B<not> search inner packages.
 If set to 1 will override C<require>.
 
 =head2 only
 
-Takes a string, array ref or regex describing the names of the only plugins to 
-return. Whilst this may seem perverse ... well, it is. But it also 
+Takes a string, array ref or regex describing the names of the only plugins to
+return. Whilst this may seem perverse ... well, it is. But it also
 makes sense. Trust me.
 
 =head2 except
 
-Similar to C<only> it takes a description of plugins to exclude 
+Similar to C<only> it takes a description of plugins to exclude
 from returning. This is slightly less perverse.
 
 =head2 package
@@ -335,13 +335,13 @@ Defaults to 1 i.e do follow symlinks.
 
 This will allow you to set what 'depth' of plugin will be allowed.
 
-So, for example, C<MyClass::Plugin::Foo> will have a depth of 3 and 
-C<MyClass::Plugin::Foo::Bar> will have a depth of 4 so to only get the former 
+So, for example, C<MyClass::Plugin::Foo> will have a depth of 3 and
+C<MyClass::Plugin::Foo::Bar> will have a depth of 4 so to only get the former
 (i.e C<MyClass::Plugin::Foo>) do
 
         package MyClass;
         use Module::Pluggable max_depth => 3;
-        
+
 and to only get the latter (i.e C<MyClass::Plugin::Foo::Bar>)
 
         package MyClass;
@@ -356,7 +356,7 @@ If any of these triggers return 0 then the plugin will not be returned.
 
 =head2 before_require <plugin>
 
-Gets passed the plugin name. 
+Gets passed the plugin name.
 
 If 0 is returned then this plugin will not be required either.
 
@@ -364,7 +364,7 @@ If 0 is returned then this plugin will not be required either.
 
 Gets called when there's an error on requiring the plugin.
 
-Gets passed the plugin name and the error. 
+Gets passed the plugin name and the error.
 
 The default on_require_error handler is to C<carp> the error and return 0.
 
@@ -372,13 +372,13 @@ The default on_require_error handler is to C<carp> the error and return 0.
 
 Gets called when there's an error on instantiating the plugin.
 
-Gets passed the plugin name and the error. 
+Gets passed the plugin name and the error.
 
 The default on_instantiate_error handler is to C<carp> the error and return 0.
 
 =head2 after_require <plugin>
 
-Gets passed the plugin name. 
+Gets passed the plugin name.
 
 If 0 is returned then this plugin will be required but not returned as a plugin.
 
@@ -386,8 +386,8 @@ If 0 is returned then this plugin will be required but not returned as a plugin.
 
 =head2 search_path
 
-The method C<search_path> is exported into you namespace as well. 
-You can call that at any time to change or replace the 
+The method C<search_path> is exported into you namespace as well.
+You can call that at any time to change or replace the
 search_path.
 
     $self->search_path( add => "New::Path" ); # add
@@ -395,15 +395,15 @@ search_path.
 
 =head1 BEHAVIOUR UNDER TEST ENVIRONMENT
 
-In order to make testing reliable we exclude anything not from blib if blib.pm is 
-in %INC. 
+In order to make testing reliable we exclude anything not from blib if blib.pm is
+in %INC.
 
-However if the module being tested used another module that itself used C<Module::Pluggable> 
-then the second module would fail. This was fixed by checking to see if the caller 
+However if the module being tested used another module that itself used C<Module::Pluggable>
+then the second module would fail. This was fixed by checking to see if the caller
 had (^|/)blib/ in their filename.
 
 There's an argument that this is the wrong behaviour and that modules should explicitly
-trigger this behaviour but that particular code has been around for 7 years now and I'm 
+trigger this behaviour but that particular code has been around for 7 years now and I'm
 reluctant to change the default behaviour.
 
 You can now (as of version 4.1) force Module::Pluggable to look outside blib in a test environment by doing either
@@ -425,10 +425,19 @@ This has allowed L<App::FatPacker> (as of version 0.10.0) to provide support for
 
 This should also, theoretically, allow someone to modify PAR to do the same thing.
 
+=head1 Module::Require recommended
+
+Up until version 5.2 L<Module::Pluggable> used a string C<eval> to require plugins.
+
+This has now been changed to optionally use L<Module::Runtime> and it's C<require_module> method when
+available and fall back to using a path based C<require> when not.
+
+It's recommended, but not required, that you install Module::Runtime.
+
 =head1 FUTURE PLANS
 
-This does everything I need and I can't really think of any other 
-features I want to add. Famous last words of course (not least 
+This does everything I need and I can't really think of any other
+features I want to add. Famous last words of course (not least
 because we're up to version 5.0 at the time of writing).
 
 However suggestions (and patches) are always welcome.
@@ -457,6 +466,6 @@ None known.
 
 L<File::Spec>, L<File::Find>, L<File::Basename>, L<Class::Factory::Util>, L<Module::Pluggable::Ordered>
 
-=cut 
+=cut
 
 
