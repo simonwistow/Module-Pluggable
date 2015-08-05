@@ -1,25 +1,24 @@
 use strict;
+use warnings;
+
 use ExtUtils::MakeMaker;
-use FindBin;
 use File::Spec::Functions qw(catfile);
+
+ExtUtils::MakeMaker->VERSION(6.98) if -f '.gitignore';
 
 # VOS and VMS can't handle dodgy plugin names
 # and VOS can't even unpack them so we create them on the
 # fly and only run the tests if they're present
 my %dodgy_files = (
-    catfile(qw(OddTest Plugin -Dodgy.pm))   => 'OddTest::Plugin::-Dodgy',
-    catfile(qw(EditorJunk Plugin #Bar.pm#)) => 'EditorJunk::Bar',
-    catfile(qw(EditorJunk Plugin .#Bar.pm)) => 'EditorJunk::Bar',
+    catfile('OddTest', 'Plugin', '-Dodgy.pm')   => 'OddTest::Plugin::-Dodgy',
+    catfile('EditorJunk', 'Plugin', '#Bar.pm#') => 'EditorJunk::Bar',
+    catfile('EditorJunk', 'Plugin', '.#Bar.pm') => 'EditorJunk::Bar',
 );
-
-my $core = grep { $_ eq 'PERL_CORE=1' } @ARGV;
-my @path = $core ? (File::Spec->updir, File::Spec->updir, File::Spec->updir,
-                   "t", "Module_Pluggable") : ($FindBin::Bin,"t");
 
 my @files;
 unless (grep { lc($^O) eq $_ } qw(vms vos)) {
     foreach my $test (keys %dodgy_files) {
-        my ($file) = (catfile(@path, "lib", $test)=~/^(.*)$/);
+        my ($file) = (catfile("t", "lib", $test)=~/^(.*)$/);
         if (open(FH, ">$file")) {
             my $name = $dodgy_files{$test};
             print FH "package $name;\nsub new {}\n1;";
@@ -79,6 +78,18 @@ my %WriteMakefileArgs = (
                 web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Module-Pluggable',
             },
         },
+        prereqs => {
+            runtime => {
+                recommends => {
+                    'Module::Runtime' => '0.012',
+                },
+            },
+            test => {
+                suggests => {
+                    'App::Fatpacker' => '0.010000',
+                },
+            },
+        },
         optional_features => {
             module_runtime => {
                 description => "Optionally use Module::Runtime for requiring plugins rather than homegrown system",
@@ -109,4 +120,3 @@ if (!eval { ExtUtils::MakeMaker->VERSION('6.5501') }) {
 }
 
 WriteMakefile(%WriteMakefileArgs);
-
