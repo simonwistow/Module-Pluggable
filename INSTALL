@@ -1,9 +1,8 @@
 
 Same as practically every other Perl module ...
 
-        % perl Build.PL
-        % ./Build
-        % ./Build test
-        % sudo ./Build install
-
+        % perl Makefile.PL
+        % make
+        % make test
+        % sudo make install
 
