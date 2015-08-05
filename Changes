@@ -1,4 +1,4 @@
-2015-??-?? - 5.2
+2015-08-05 - 5.2
     Use Module::Runtime if it's installed (thanks to Olivier Mengué)
     Switch to using ExtUtils::MakeMaker (thanks to Karen Etheridge and Tim Orling)
 
