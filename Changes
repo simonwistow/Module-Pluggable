@@ -1,6 +1,6 @@
 2015-??-?? - 5.2
     Use Module::Runtime if it's installed (thanks to Olivier Mengué)
-    Switch to using ExtUtils::MakeMaker (thanks to Tim Orling and Karen Etheridge)
+    Switch to using ExtUtils::MakeMaker (thanks to Karen Etheridge and Tim Orling)
 
 2014-01-05 - 5.1
     Add in missing files left out of the MANIFEST due to stupidity (thanks to Petr Pisar)
