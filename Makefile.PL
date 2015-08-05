@@ -90,6 +90,18 @@ my %WriteMakefileArgs = (
                 },
             },
         },
+        optional_features => {
+            module_runtime => {
+                description => "Optionally use Module::Runtime for requiring plugins rather than homegrown system",
+                prereqs => {
+                    runtime => {
+                        requires => {
+                            'Module::Runtime' => '0.012',
+                        }
+                    }
+                }
+            }
+        }
     },
 );
 
