@@ -1,5 +1,4 @@
 Makefile
-Makefile.PL
 Build
 blib
 pm_to_blib
