@@ -86,7 +86,7 @@ my %WriteMakefileArgs = (
             },
             test => {
                 suggests => {
-                    'App::Fatpacker' => '0.010000',
+                    'App::FatPacker' => '0.010000',
                 },
             },
         },
