@@ -65,6 +65,10 @@ sub plugins {
     $self->{'on_require_error'} ||= sub { my ($plugin, $err) = @_; carp "Couldn't require $plugin : $err"; return 0 };
     $self->{'on_instantiate_error'} ||= sub { my ($plugin, $err) = @_; carp "Couldn't instantiate $plugin: $err"; return 0 };
 
+    # before and after instantiation hooks
+    $self->{'before_instantiate'} ||= sub { 1 };
+    $self->{'after_instantiate'}  ||= sub { return $_[1] };
+
     # default whether to follow symlinks
     $self->{'follow_symlinks'} = 1 unless exists $self->{'follow_symlinks'};
 
@@ -100,14 +104,20 @@ sub plugins {
         my @objs   = ();
         foreach my $package (sort keys %plugins) {
             next unless $package->can($method);
-            my $obj = eval { $package->$method(@_) };
+            $self->{'before_instantiate'}->($package)
+                or next;
+            my $obj = eval { $package->$method(@_) }; # We dont actually care what ->$method() returns
             $self->{'on_instantiate_error'}->($package, $@) if $@;
-            push @objs, $obj if $obj;
+            if ($obj) {
+                $obj = $self->{'after_instantiate'}->($package,$obj)
+                    or next; # Again, we dont actually care if we get a blessed reference or not
+                push @objs, $obj;
+            }
         }
         return @objs;
     } else {
         # no? just return the names
-        my @objs= sort keys %plugins;
+        my @objs = sort keys %plugins;
         return @objs;
     }
 }
