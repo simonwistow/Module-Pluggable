@@ -19,9 +19,9 @@ is($ta->MPCHECK, "HELLO");
 };
 
 package IncTest;
-use Module::Pluggable search_path => "Text", 
-                      search_dirs => "t/lib", 
-                      instantiate => 'module_pluggable', 
+use Module::Pluggable search_path => "Text",
+                      search_dirs => "t/lib",
+                      instantiate => 'module_pluggable',
                       on_require_error     => sub { },
                       on_instantiate_error => sub { };
 
