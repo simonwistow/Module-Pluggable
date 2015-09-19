@@ -274,7 +274,7 @@ sub _is_editor_junk {
     # saved.
     return 1 if $name =~ /^\.#/;
     # Vim can leave these files behind if it crashes.
-    return 1 if $name =~ /\.sw[po]$/;
+    return 1 if $name =~ /^[._].*\.s[a-w][a-z]$/;
 
     return 0;
 }
