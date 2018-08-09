@@ -1,3 +1,4 @@
+use 5.006;
 use strict;
 use warnings;
 
@@ -34,7 +35,7 @@ my %WriteMakefileArgs = (
     ABSTRACT_FROM       => 'lib/Module/Pluggable.pm',
     AUTHOR              => 'Simon Wistow <simon@thegestalt.org>',
     LICENSE             => 'perl_5',
-    MIN_PERL_VERSION    => '5.00503',
+    MIN_PERL_VERSION    => '5.006',
     INSTALLDIRS         => ($] >= 5.008009 && $] <= 5.011000 ? 'perl' : 'site'),
 
     CONFIGURE_REQUIRES => {
@@ -48,6 +49,7 @@ my %WriteMakefileArgs = (
         'File::Find'            => '0',
         'File::Spec::Functions' => '0',
         'strict'                => '0',
+        'Scalar::Util'          => '0',
     },
     TEST_REQUIRES => {
         'Test::More'            => '0',

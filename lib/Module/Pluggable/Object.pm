@@ -6,6 +6,7 @@ use File::Basename;
 use File::Spec::Functions qw(splitdir catdir curdir catfile abs2rel);
 use Carp qw(croak carp confess);
 use Devel::InnerPackage;
+use Scalar::Util qw( blessed );
 use vars qw($VERSION $MR);
 
 use if $] > 5.017, 'deprecate';
@@ -343,7 +344,7 @@ sub handle_inc_hooks {
 
     my @plugins;
     for my $dir ( @SEARCHDIR ) {
-        next unless ref $dir && eval { $dir->can( 'files' ) };
+        next unless blessed( $dir ) && $dir->can( 'files' );
 
         foreach my $plugin ( $dir->files ) {
             $plugin =~ s/\.pm$//;
