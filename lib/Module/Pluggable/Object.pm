@@ -165,6 +165,8 @@ sub _is_legit {
     return 0 if     defined $self->{max_depth} && $depth>$self->{max_depth};
     return 0 if     defined $self->{min_depth} && $depth<$self->{min_depth};
 
+    return 0 if     $plugin =~ /(^|::).AppleDouble/;
+
     return 1;
 }
 
