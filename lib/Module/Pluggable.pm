@@ -368,6 +368,19 @@ Gets passed the plugin name and the error.
 
 The default on_require_error handler is to C<carp> the error and return 0.
 
+=head2 after_require <plugin>
+
+Gets passed the plugin name.
+
+If 0 is returned then this plugin will be required but not instantiated or
+returned as a plugin.
+
+=head2 before_instantiate <plugin>
+
+Gets passed the plugin name.
+
+If 0 is returned, then instantiation will not occur.
+
 =head2 on_instantiate_error <plugin> <err>
 
 Gets called when there's an error on instantiating the plugin.
@@ -376,11 +389,13 @@ Gets passed the plugin name and the error.
 
 The default on_instantiate_error handler is to C<carp> the error and return 0.
 
-=head2 after_require <plugin>
+=head2 after_instantiate <plugin> <obj>
 
-Gets passed the plugin name.
+Gets passed the plugin name and the object that was instentiated.
+i.e. the return value of C<Plugin->new()>
 
-If 0 is returned then this plugin will be required but not returned as a plugin.
+The return value must be <obj> and will be returned AS the plugin.
+If the return value is not true, then nothing will be returned as a plugin.
 
 =head1 METHODs
 
