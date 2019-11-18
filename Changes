@@ -14,7 +14,7 @@
 2013-05-27 - 4.8
     Fix some typos (David Steinbrunner)
     Fix error in testing when Text::BibTex is installed (thanks to Andreas Koenig)
-    
+
 2013-02-25 - 4.7
     Fix more hash ordering bugs in tests by forcing sort of returned plugins (Yves Orton)
 
@@ -24,7 +24,7 @@
 2012-11-05 - 4.5
     Fix docs
     Fix problem with PAUSE upload
-    
+
 2012-11-05 - 4.4
     Fix hash ordering bug in tests (Yves Orton)
     Fix install dir (Tatsuhiko Miyagawa)
@@ -44,11 +44,11 @@
     Allow min_depth and max_depth (as per suggestion from Jens Rehsack)
     Set our @INC up to include and prefer our search_dirs if necessary (as per suggestion from Ian Goodacre)
     Switch to Module::Build
-    
+
 2012-01-03 - 4.0
     Don't use defined on an array (it's deprecated)
 
-2009-03-02 - 3.9 
+2009-03-02 - 3.9
     Allow inner packages when in a one file situation (suggestion from Christopher Brown)
     Fix bug with requiring skipped packages (from Jos Boumans)
 
@@ -56,7 +56,7 @@
     Set INSTALLDIRS correctly in Makefile.PL
     A couple of other fixups to play nicely in Core
 
-2008-03-12 - 3.7 
+2008-03-12 - 3.7
     Ignore editor cruft by default (Dave Rolsky and Matt Trout)
     Doc patches (Matt Trout)
     Prevent prototype mismatch warnings under Error.pm (Christopher H. Laco)
@@ -64,18 +64,18 @@
     Make things work under VOS (Nicholas Clark and Paul Green)
     Fix warning under Devel::Cover (Brian Cassidy)
     Make tests run under Taint again
-    Get rid of Build.PL 
-        
+    Get rid of Build.PL
+
 2007-04-07 - 3.6
-    Include blead perl patch from Craig Berry that gives better 
-    Module::Pluggable::Object::search_paths portability as 
+    Include blead perl patch from Craig Berry that gives better
+    Module::Pluggable::Object::search_paths portability as
     prompted by VMS test failures.
 
 2007-01-29 - 3.5
     Patch from Audrey Tang to prevent clobbering of $@
 
 2006-11-27 - 3.4
-    Make sure we don't fail taint checking when other 
+    Make sure we don't fail taint checking when other
     Module::Pluggable::* modules are installed.
 
 2006-11-24 - 3.3
@@ -94,24 +94,23 @@
     Fix from Brian Cassidy in Devel::InnerPackage
 
 2006-06-06 - 3.0
-    Big refactor to split stuff up into more manageable pieces 
-
+    Big refactor to split stuff up into more manageable pieces
 
 2006-04-05 - 2.98
     Allow the ability to provide the file matching regex
 
 2006-02-06 - 2.97
-    Patch from Ricardo Signes to fix bug where File::Find  
+    Patch from Ricardo Signes to fix bug where File::Find
     is not topic-safe in 5.6.1
 
-2005-09-01 - 2.96 
-    Patch from Alex Vandiver to sort an edge case where the package 
+2005-09-01 - 2.96
+    Patch from Alex Vandiver to sort an edge case where the package
     stash to contain "::"
 
 2005-07-30 - 2.95
     Patch from Alex Vandiver to sort ::ISA::CACHE issues.
     More patches from Christopher H. Laco to sort out only and except
-    and to fix calling search_path( add => ... ) before plugins() 
+    and to fix calling search_path( add => ... ) before plugins()
 
 2005-07-09 - 2.9 More Tainting fixes
     Patches from Christopher H. Laco and Joe McMahon  to do more taint fixing
@@ -122,146 +121,114 @@
     Patch from Marcus Thiesen to fix so ISA cache magic
     Patch from Anthony D. Urso to get M::P to work under taint
 
-
 2005-02-14 - 2.7 Allow redefinition of search_path
-
     A patch from Barbie to allow you to do
 
        $self->search_path( add => 'Some::Path'      );
        $self->search_path( new => 'Some::New::Path' );
 
-
-2005-02-02 - 2.6 Problems under tests 
-
-    Richard Clamp diagnosed a problem as being due to the 
-    fact that we exclude anything not from blib if there 
-    was blib.pm is %INC. Of course if the module being 
-    tested used another module that used Module::Pluggable 
-    then the second module would fail. 
+2005-02-02 - 2.6 Problems under tests
+    Richard Clamp diagnosed a problem as being due to the
+    fact that we exclude anything not from blib if there
+    was blib.pm is %INC. Of course if the module being
+    tested used another module that used Module::Pluggable
+    then the second module would fail.
 
     Fixed it by checking to see if the caller had (^|/)blib/
     in their filename.
 
 2004-12-20 - 2.5 'Inspiration' from Module::Pluggable::Fast
-   
     Noticed Sebastian Riedel's curious Module::Pluggable::Fast
     which appears to break API backwards compatability in order
     to inline an explicit call to 'new'. It has no tests.
 
-    A quick benchmark showed that it was about 10% faster 
+    A quick benchmark showed that it was about 10% faster
     because of cruft that had accumulated over time. So
-    a few quick changes and now Module::Pluggable is only 
-    3% slower. Which is nice. 
+    a few quick changes and now Module::Pluggable is only
+    3% slower. Which is nice.
 
     Also added a patch from Barbie to fix things under Windows.
 
 2004-12-15 - 2.4 Bug fix
-
-    There seemed to be some irregularities in how 5.8.1 worked 
-    with the list_packages method. Fixed thanks to Schwern, 
-    Michael Cummings and Jos Boumans. 
+    There seemed to be some irregularities in how 5.8.1 worked
+    with the list_packages method. Fixed thanks to Schwern,
+    Michael Cummings and Jos Boumans.
 
     Added some more documentation.
 
     Added ability to specify except and only as regexes.
 
 2004-10-27 - 2.3 Niceties
-
     Allow you to explicitly stop looking for inner packages.
     Made it nicer to have single element search_dirs and search_paths.
-    
 
 2004-10-08 - 2.2 Dieting
-    
-    Thanks to suggestion and patches from Adam Kennedy 
-    Module::Pluggable has dumped some weight and got rid of 
-    the none Core dependecies of File::Find::Rule and 
+    Thanks to suggestion and patches from Adam Kennedy
+    Module::Pluggable has dumped some weight and got rid of
+    the none Core dependecies of File::Find::Rule and
     UNIVERSAL::require
 
-
 2004-08-25 - 2.1 Small buglette
-
     Require inner packages when appropriate. This helps towards
     making things work with PAR. Thanks to Brian Cassidy.
 
     Never released.
-    
-2004-08-19 - 2.0 Working inner packages
 
+2004-08-19 - 2.0 Working inner packages
     As long as you have require or instantiate set then we'll also find
     inner packages. Why I didn't fix this way back in 1.3 I don't know.
 
 2004-07-18 - 1.9 Add 'package' option
-
-    This lets you install a method in another package's 
+    This lets you install a method in another package's
     namespace. Thanks to Simon Cozens.
 
 2004-07-08 - 1.8 Fix those two options
-
     They worked before but now they're more robust.
 
 2004-07-07 - 1.7 Add support for limiting plugins
-
     Added 'only' and ''except' options.
 
 2004-06-03 - 1.6 Add a traditional Makefile.PL
-    
     Even though I think Module::Build is much better.
 
 2004-05-25 - 1.5 Build.PL stupidity
-
     Must add prereqs. Doh.
 
 2004-05-25 - 1.4  Multiple instances
-
     Made it so you could use it twice in the same package.
     Removed the inner package stuff inorder to fix it properly.
 
-2004-05-06 - 1.3  Ability to search in inner packages 
-
-    Simon Cozens donated some code to allow us to search 
+2004-05-06 - 1.3  Ability to search in inner packages
+    Simon Cozens donated some code to allow us to search
     inner packages.
 
 2004-05-06 - 1.2  Fix minor buglet
-    
     Apply a patch from Tom Insam to fix requiring without
     instantiating and make require failures more verbose.
 
 2003-12-15 - 1.11 Update MANIFEST.
-    
     So that make dist works properly.
 
 2003-12-15 - 1.1  Make it work with multi level plugins
-
-    Apparently Foo::Plugin::Bar::Quux doesn't work. 
+    Apparently Foo::Plugin::Bar::Quux doesn't work.
     Thanks to Darren Chamberlain for spotting this.
 
 2003-12-15 - 1.00 Add some more features
-    
-    Added the ability to require without instantiating (for Tom Insam)    
+    Added the ability to require without instantiating (for Tom Insam)
     Prevented the names from being explicitly sorted (again, for Tom Insam)
     Added in the ability to provide other search directorys.
 
 2003-11-27 - 0.95 Some Test::More issues
-
     Explicitly number the tests which fixes some test more failures
 
-
 2003-10-21 - 0.9  We can rebuild you, we have the technology
-    
     Having used this in the wild some changes to make it better.
 
-
 2003-10-20 - 0.8  Fix.
-    
     Namespace issues.
 
-
 2003-10-17 - 0.7  And take your Build.PL with you
-
     Pesky MANIFEST.SKIP
 
-
 2003-10-15 - 0.6  Initial release
-
     Be free my pretty. EMANCIPIA!
