@@ -70,7 +70,7 @@ sub list_packages {
             {
                 $cand =~ s!::$!!;
                 my @children = list_packages($pack.$cand);
-    
+
                 push @packs, "$pack$cand" unless $cand =~ /^::/ ||
                     !__PACKAGE__->_loaded($pack.$cand); # or @children;
                 push @packs, @children;
@@ -119,7 +119,7 @@ Distributed under the same terms as Perl itself.
 
 None known.
 
-=cut 
+=cut
 
 
 
