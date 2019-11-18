@@ -7,8 +7,11 @@ use Test::More;
 
 BEGIN {
     my $need_version = "0.10.0";
-    eval "use App::FatPacker $need_version ; 1; "
-      or plan skip_all => "App::FatPacker >= $need_version not available";
+    if (eval "use App::FatPacker $need_version ; 1;") {
+      plan tests => 2;
+    } else {
+      plan skip_all => "App::FatPacker >= $need_version not available";
+    }
 }
 
 use Cwd 'cwd';
@@ -50,8 +53,6 @@ $packed_file->close;
 
 # run it (and it's included tests )
 require_ok $packed_file;
-
-done_testing;
 
 sub copy_dir {
     my ($from, $to, $shift) = @_;
