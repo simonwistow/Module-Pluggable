@@ -223,8 +223,8 @@ and similarly for only which will only load plugins which match.
 Remember you can use the module more than once
 
     package MyClass;
-    use Module::Pluggable search_path => 'MyClass::Filters' sub_name => 'filters';
-    use Module::Pluggable search_path => 'MyClass::Plugins' sub_name => 'plugins';
+    use Module::Pluggable search_path => 'MyClass::Filters', sub_name => 'filters';
+    use Module::Pluggable search_path => 'MyClass::Plugins', sub_name => 'plugins';
 
 and then later ...
 
