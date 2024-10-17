@@ -7,11 +7,10 @@ use File::Spec::Functions qw(splitdir catdir curdir catfile abs2rel);
 use Carp qw(croak carp confess);
 use Devel::InnerPackage;
 use Scalar::Util qw( blessed );
-use vars qw($VERSION $MR);
 
 use if $] > 5.017, 'deprecate';
 
-$VERSION = '5.2';
+our $VERSION = '5.2';
 
 BEGIN {
     eval {  require Module::Runtime };

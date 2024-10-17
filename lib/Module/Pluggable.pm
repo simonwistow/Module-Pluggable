@@ -1,7 +1,6 @@
 package Module::Pluggable;
 
 use strict;
-use vars qw($VERSION $FORCE_SEARCH_ALL_PATHS);
 use Module::Pluggable::Object;
 
 use if $] > 5.017, 'deprecate';
@@ -11,8 +10,8 @@ use if $] > 5.017, 'deprecate';
 # Peter Gibbons: I wouldn't say I've been missing it, Bob!
 
 
-$VERSION = '5.2';
-$FORCE_SEARCH_ALL_PATHS = 0;
+our $VERSION = '5.2';
+our $FORCE_SEARCH_ALL_PATHS = 0;
 
 sub import {
     my $class        = shift;

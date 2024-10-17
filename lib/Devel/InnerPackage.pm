@@ -2,12 +2,11 @@ package Devel::InnerPackage;
 
 use strict;
 use Exporter 5.57 'import';
-use vars qw($VERSION @EXPORT_OK);
 
 use if $] > 5.017, 'deprecate';
 
-$VERSION = '0.4';
-@EXPORT_OK = qw(list_packages);
+our $VERSION = '0.4';
+our @EXPORT_OK = qw(list_packages);
 
 =pod
 
