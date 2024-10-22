@@ -1,3 +1,9 @@
+2015-11-20 - 6.0
+    Fix typo in examples (thanks to Zoffix Znet @zoffixznet)
+    Fix spelling of "FatPacker" (thanks to David Wheeler @theory)
+    Add before_instantiate and after_instantiate hooks (thanks to Dean Hamstead @djzort)
+    Use explicit test plan instead of done_testing (thanks to Matthew Horsfall @wolfsage)
+
 2015-08-05 - 5.2
     Use Module::Runtime if it's installed (thanks to Olivier Mengué)
     Switch to using ExtUtils::MakeMaker (thanks to Karen Etheridge and Tim Orling)
