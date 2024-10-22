@@ -70,6 +70,11 @@ sub plugins {
     $self->{'after_instantiate'}  ||= sub { return $_[1] };
 
     # default whether to follow symlinks
+    # because the default behavior is changed in the Perl-CORE module File::Find VERSION >= '1.39',
+    # in lower versions of File::Find, 'follow_symlinks' is (independent from the callers setting of 
+    # 'follow_symlinks') hardcoded set to 0 on Windows so we force File::Find to fall back to the old
+    # behavior, if not otherwise told 
+    $self->{'follow_symlinks'} = 0 if ($File::Find::VERSION >= '1.39' && $^O eq 'MSWin32' && ! exists $self->{'follow_symlinks'} );
     $self->{'follow_symlinks'} = 1 unless exists $self->{'follow_symlinks'};
 
     # check to see if we're running under test
