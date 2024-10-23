@@ -1,3 +1,6 @@
+2024-10-23 - 6.2
+    Simon, did you forget to remove a dependency you used only for testing? Yes, yes you did.
+
 2024-10-22 - 6.1
     Don't use vars, use our (thanks to Graham Knop @haarg)
     Ignore the .AppleDouble (thanks to Dave Cantrell @DrHyde)

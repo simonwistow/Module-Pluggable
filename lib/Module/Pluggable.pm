@@ -10,7 +10,7 @@ use if $] > 5.017, 'deprecate';
 # Peter Gibbons: I wouldn't say I've been missing it, Bob!
 
 
-our $VERSION = '6.1';
+our $VERSION = '6.2';
 our $FORCE_SEARCH_ALL_PATHS = 0;
 
 sub import {
@@ -30,7 +30,7 @@ sub import {
     my $finder       = Module::Pluggable::Object->new(%opts);
     my $subroutine   = sub { my $self = shift; return $finder->plugins(@_) };
 
-    my $searchsub = sub {
+    my $search_path_sub = sub {
               my $self = shift;
               my ($action,@paths) = @_;
 
@@ -40,6 +40,15 @@ sub import {
               return $finder->{'search_path'};
     };
 
+    my $search_dirs_sub = sub {
+              my $self = shift;
+              my ($action,@paths) = @_;
+
+              $finder->{'search_dirs'} = ["${package}::Plugin"] if ($action eq 'add'  and not   $finder->{'search_dirs'} );
+              push @{$finder->{'search_dirs'}}, @paths      if ($action eq 'add');
+              $finder->{'search_dirs'}       = \@paths      if ($action eq 'new');
+              return $finder->{'search_dirs'};
+    };
 
     my $onlysub = sub {
         my ($self, $only) = @_;
@@ -66,7 +75,8 @@ sub import {
     no warnings qw(redefine prototype);
 
     *{"$package\::$sub"}        = $subroutine;
-    *{"$package\::search_path"} = $searchsub;
+    *{"$package\::search_path"} = $search_path_sub;
+    *{"$package\::search_dirs"} = $search_dirs_sub;
     *{"$package\::only"}        = $onlysub;
     *{"$package\::except"}      = $exceptsub;
 
