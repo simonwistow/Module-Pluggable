@@ -6,7 +6,6 @@ use FindBin;
 use Test::More tests => 6;
 use File::Temp qw/tempdir/;
 use File::Path qw(make_path);
-use File::Slurp;
 
 # The problem with checking for files that are unreadable
 # is that we can't check unreadable files into git
