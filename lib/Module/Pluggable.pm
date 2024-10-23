@@ -10,7 +10,7 @@ use if $] > 5.017, 'deprecate';
 # Peter Gibbons: I wouldn't say I've been missing it, Bob!
 
 
-our $VERSION = '5.2';
+our $VERSION = '6.1';
 our $FORCE_SEARCH_ALL_PATHS = 0;
 
 sub import {

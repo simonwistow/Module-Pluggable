@@ -1,3 +1,10 @@
+2024-10-22 - 6.1
+    Don't use vars, use our (thanks to Graham Knop @haarg)
+    Ignore the .AppleDouble (thanks to Dave Cantrell @DrHyde)
+    Improve vim swapfile patterns (thanks to Elan Ruusamäe @glensc)
+    Fix behaviour of File::Find and symlinks on certain versions of Win32 (thanks @thockar)
+    Skip unreadable files (thanks Sven Schober @sschober)
+
 2015-11-20 - 6.0
     Fix typo in examples (thanks to Zoffix Znet @zoffixznet)
     Fix spelling of "FatPacker" (thanks to David Wheeler @theory)
