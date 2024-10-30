@@ -1,9 +1,19 @@
 #!perl -w
 
 use strict;
+
+use Test::More;
+
+BEGIN {
+    if ($> == 0) {
+      plan skip_all => "Running as root";
+    } else {
+      plan tests => 6;
+    }
+}
+
 use FindBin;
 #use lib (($FindBin::Bin."/lib")=~/^(.*)$/);
-use Test::More tests => 6;
 use File::Temp qw/tempdir/;
 use File::Path qw(make_path);
 
