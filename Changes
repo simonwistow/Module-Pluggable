@@ -1,5 +1,6 @@
-    Fix make_path() in t/29unreadable.t.
-    Fix t/29unreadable.t tests failing as root.
+2025-01-10 - 6.3
+    Fix make_path() in t/29unreadable.t. (thanks to Michal Josef Špaček @michal-josef-spacek)
+    Fix t/29unreadable.t tests failing as root. (thanks to Michal Josef Špaček @michal-josef-spacek)
 
 2024-10-23 - 6.2
     Simon, did you forget to remove a dependency you used only for testing? Yes, yes you did.
