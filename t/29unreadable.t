@@ -1,9 +1,19 @@
 #!perl -w
 
 use strict;
+
+use Test::More;
+
+BEGIN {
+    if ($> == 0) {
+      plan skip_all => "Running as root";
+    } else {
+      plan tests => 6;
+    }
+}
+
 use FindBin;
 #use lib (($FindBin::Bin."/lib")=~/^(.*)$/);
-use Test::More tests => 6;
 use File::Temp qw/tempdir/;
 use File::Path qw(make_path);
 
@@ -12,10 +22,10 @@ use File::Path qw(make_path);
 # So we're going to create it on the fly 
 
 # First create a tmp directory and then a directory underneath
-my $dir  = tempdir();
+my $dir  = tempdir(CLEANUP => 1);
 my $path = "${dir}/lib/Unreadable";
 my $file = "${path}/Foo.pm";
-make_path($path, CLEANUP => 1);
+make_path($path);
 # ... now create a file
 open(my $fh, ">", $file) || die "Couldn't create temporary file $file: $!";
 print $fh "package Unreadable::Foo;\n1;\n";
