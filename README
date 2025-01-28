@@ -46,7 +46,7 @@ EXAMPLE
     This can be trivally extended so that plugins could save the email
     somewhere and then no other plugin should try and do that. Simply have
     it so that the "examine" method returns 1 if it has saved the email
-    somewhere. You might also wnat to be paranoid and check to see if the
+    somewhere. You might also want to be paranoid and check to see if the
     plugin has an "examine" method.
 
             foreach my $plugin ($self->plugins) {
