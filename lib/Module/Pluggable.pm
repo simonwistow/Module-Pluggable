@@ -185,6 +185,8 @@ or directory
 
     use Module::Pluggable search_dirs => ['mylibs/Foo'];
 
+If you I<only> want to search those C<search_dirs>, provide a true value for
+C<search_dirs_strict>.
 
 Or if you want to instantiate each plugin rather than just return the name
 
