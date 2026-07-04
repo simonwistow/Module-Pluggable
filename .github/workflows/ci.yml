@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Full version range on Linux
+          - { os: ubuntu-latest, perl: '5.10' }
+          - { os: ubuntu-latest, perl: '5.14' }
+          - { os: ubuntu-latest, perl: '5.18' }
+          - { os: ubuntu-latest, perl: '5.22' }
+          - { os: ubuntu-latest, perl: '5.26' }
+          - { os: ubuntu-latest, perl: '5.30' }
+          - { os: ubuntu-latest, perl: '5.34' }
+          - { os: ubuntu-latest, perl: '5.38' }
+          # Smoke test on macOS and Windows with latest Perl
+          - { os: macos-latest,   perl: '5.38' }
+          - { os: windows-latest, perl: '5.38' }
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Perl ${{ matrix.perl }}
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+
+      - name: Install developer Dependencies
+        run: |
+          cpanm ExtUtils::MakeMaker File::ShareDir::Install Test::CPAN::Meta::JSON Test::CPAN::Meta Test::Pod    
+
+      - name: Install dependencies
+        run: cpanm --notest --installdeps .
+
+      - name: Build and test
+        run: perl Makefile.PL && make test

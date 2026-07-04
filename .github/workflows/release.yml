@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    name: Release to GitHub and CPAN
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: '5.38'
+
+      - name: Install developer Dependencies
+        run: |
+          cpanm ExtUtils::MakeMaker File::ShareDir::Install Test::CPAN::Meta::JSON Test::CPAN::Meta Test::Pod    
+
+      - name: Install CPAN::Uploader
+        run: cpanm --notest CPAN::Uploader
+
+      - name: Build distribution
+        run: perl Makefile.PL && make dist
+
+      - name: Find distribution tarball
+        id: dist
+        run: echo "filename=$(ls *.tar.gz)" >> $GITHUB_OUTPUT
+
+      - name: Extract release notes from Changes
+        id: notes
+        run: |
+          {
+            echo 'body<<EOF'
+            perl -ne 'last if /^\d/ && $seen++; print' Changes
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.dist.outputs.filename }}
+          body: ${{ steps.notes.outputs.body }}
+
+      - name: Upload to CPAN
+        env:
+          PAUSE_USER: ${{ secrets.PAUSE_USER }}
+          PAUSE_PASSWORD: ${{ secrets.PAUSE_PASSWORD }}
+        run: cpan-upload -u "$PAUSE_USER" -p "$PAUSE_PASSWORD" ${{ steps.dist.outputs.filename }}
