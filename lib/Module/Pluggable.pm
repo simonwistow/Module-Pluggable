@@ -281,6 +281,31 @@ By default this is 'plugins'
 
 An array ref of namespaces to look in.
 
+    search_path => ['MyApp::Plugin', 'MyApp::Extension']
+
+Alternatively, you can pass a hash ref where each key is a namespace prefix and
+each value is a hash ref of option overrides for that path. The per-path
+options are merged on top of the global options, so you only need to
+specify what differs.
+
+    search_path => {
+        'MyApp::Plugin'    => { max_depth => 2 },
+        'MyApp::Extension' => { max_depth => 3, instantiate => 'new' },
+    }
+
+If you want plugins to be in a particular order, use an array ref of mixed
+plain strings and single-key hash refs instead. Order is preserved; only the
+hash ref entries carry per-path option overrides.
+
+    search_path => [
+        'MyApp::Plugin',
+        { 'MyApp::Extension' => { max_depth => 3, instantiate => 'new' } },
+    ]
+
+Results from all paths are combined and returned in a single list. Class
+names are deduplicated across paths; if any path uses C<instantiate> its
+objects are included as-is alongside any class names from other paths.
+
 =head2 search_dirs
 
 An array ref of directories to look in before @INC.

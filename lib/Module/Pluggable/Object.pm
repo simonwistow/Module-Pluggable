@@ -27,6 +27,61 @@ BEGIN {
 }
 
 
+=head1 NAME
+
+Module::Pluggable::Object - the underlying plugin-finding object used by Module::Pluggable
+
+=head1 SYNOPSIS
+
+    package MyClass;
+    use Module::Pluggable::Object;
+
+    my $finder = Module::Pluggable::Object->new(
+        package     => __PACKAGE__,
+        search_path => ['MyClass::Plugin'],
+        require     => 1,
+    );
+
+    my @plugins = $finder->plugins;
+    print "Found: ", join(", ", @plugins), "\n";
+
+=head1 DESCRIPTION
+
+C<Module::Pluggable::Object> is the engine underneath L<Module::Pluggable>. It
+walks a set of search paths (namespaces and directories) looking for C<.pm>
+files, maps their paths to package names, and optionally C<require>s or
+instantiates them.
+
+Most of the time you should use L<Module::Pluggable> directly, which wraps
+this class and exports a C<plugins()> method into your namespace. Use this
+class directly when you need more control:
+
+=over 4
+
+=item * You want to create multiple independent finders in the same package.
+
+=item * You want to subclass or decorate the finder object.
+
+=item * You want to store the finder and call C<plugins()> on it explicitly
+rather than through an exported method.
+
+=item * You are building your own higher-level abstraction on top of the
+plugin-discovery machinery.
+
+=back
+
+=head1 CONSTRUCTOR
+
+=head2 new(%opts)
+
+    my $finder = Module::Pluggable::Object->new(%opts);
+
+Creates and returns a new finder object. All options are passed as a flat
+hash; they are stored on the object and consulted by L</plugins>. See
+L</OPTIONS> below for the full list.
+
+=cut
+
 sub new {
     my $class = shift;
     my %opts  = @_;
@@ -35,31 +90,98 @@ sub new {
 
 }
 
+=head1 METHODS
+
+=head2 plugins
+
+    my @plugins = $finder->plugins;        # list of class names
+    my @objects = $finder->plugins(@args); # instances when 'instantiate' is set
+
+The main entry point. Walks C<search_path> across C<search_dirs> (and C<@INC>)
+and returns either a sorted list of fully-qualified package names or, if
+C<instantiate> is set, a list of objects created by calling the named method
+on each plugin class.
+
+Arguments passed to C<plugins()> are forwarded to the C<instantiate> method
+on each plugin class.
+
+The full search is repeated on every call, which allows plugins installed
+after startup to be discovered at run time. If you do not need dynamic
+discovery and want to pay the I/O cost only once, memoize the result yourself:
+
+    our @PLUGINS;
+    sub plugins { @PLUGINS ||= shift->_finder->plugins }
+
+=cut
+
 ### Eugggh, this code smells
 ### This is what happens when you keep adding patches
 ### *sigh*
 
+# Normalises the three supported forms of 'search_path' into an ordered
+# list of [$namespace, \%per_path_opts] pairs:
+#   "Foo::Plugin"                                  -> plain scalar
+#   ["Foo::Plugin", "Bar::Plugin"]                 -> plain arrayref
+#   { "Foo::Plugin" => { max_depth => 2 }, ... }    -> hashref, sorted for determinism
+#   ["Foo::Plugin", { "Bar::Plugin" => { ... } }]   -> mixed arrayref, preserves order
+sub _normalise_search_path {
+    my ($sp) = @_;
+    return () unless defined $sp;
+    return ([$sp, {}]) unless ref $sp;
+    if (ref($sp) eq 'HASH') {
+        return map { [$_, $sp->{$_} || {}] } sort keys %$sp;
+    }
+    if (ref($sp) eq 'ARRAY') {
+        my @out;
+        for my $item (@$sp) {
+            if (!ref($item)) {
+                push @out, [$item, {}];
+            } elsif (ref($item) eq 'HASH') {
+                push @out, map { [$_, $item->{$_} || {}] } sort keys %$item;
+            }
+        }
+        return @out;
+    }
+    return ();
+}
 
 sub plugins {
     my $self = shift;
     my @args = @_;
 
+    my $pkg = $self->{'package'};
+
+    # Normalise search_path, then apply the default
+    my @path_specs = _normalise_search_path($self->{'search_path'});
+    @path_specs = ([$pkg . '::Plugin', {}]) unless @path_specs;
+
+    # If any path carries per-path option overrides, dispatch each path through
+    # its own sub-finder and merge results in spec order, deduplicating class names.
+    if (grep { %{$_->[1]} } @path_specs) {
+        my @results;
+        for my $spec (@path_specs) {
+            my ($path, $per_path) = @$spec;
+            my $sub = ref($self)->new(%$self, %$per_path, search_path => [$path]);
+            push @results, $sub->plugins(@args);
+        }
+        my %seen;
+        return grep { ref($_) ? 1 : !$seen{$_}++ } @results;
+    }
+
+    # No per-path overrides: restore as a simple arrayref and continue as normal
+    $self->{'search_path'} = [map { $_->[0] } @path_specs];
+
     # override 'require'
     $self->{'require'} = 1 if $self->{'inner'};
 
     my $filename   = $self->{'filename'};
-    my $pkg        = $self->{'package'};
 
     # Get the exception params instantiated
     $self->_setup_exceptions;
 
-    # automatically turn a scalar search path or namespace into a arrayref
-    for (qw(search_path search_dirs)) {
-        $self->{$_} = [ $self->{$_} ] if exists $self->{$_} && !ref($self->{$_});
-    }
-
-    # default search path is '<Module>::<Name>::Plugin'
-    $self->{'search_path'} ||= ["${pkg}::Plugin"];
+    # automatically turn a scalar search_dirs into an arrayref
+    $self->{'search_dirs'} = [ $self->{'search_dirs'} ]
+        if exists $self->{'search_dirs'} && !ref($self->{'search_dirs'});
 
     # default error handler
     $self->{'on_require_error'} ||= sub { my ($plugin, $err) = @_; carp "Couldn't require $plugin : $err"; return 0 };
@@ -71,9 +193,9 @@ sub plugins {
 
     # default whether to follow symlinks
     # because the default behavior is changed in the Perl-CORE module File::Find VERSION >= '1.39',
-    # in lower versions of File::Find, 'follow_symlinks' is (independent from the callers setting of 
+    # in lower versions of File::Find, 'follow_symlinks' is (independent from the callers setting of
     # 'follow_symlinks') hardcoded set to 0 on Windows so we force File::Find to fall back to the old
-    # behavior, if not otherwise told 
+    # behavior, if not otherwise told
     $self->{'follow_symlinks'} = 0 if ($File::Find::VERSION >= '1.39' && $^O eq 'MSWin32' && ! exists $self->{'follow_symlinks'} );
     $self->{'follow_symlinks'} = 1 unless exists $self->{'follow_symlinks'};
 
@@ -178,10 +300,10 @@ sub _is_legit {
     my $except = $self->{_exceptions}->{except};
     my $depth  = () = split '::', $plugin, -1;
 
-    return 0 if     (keys %only   && !$only{$plugin}     );
-    return 0 unless (!defined $only || $plugin =~ m!$only!     );
+    return 0 if     (keys %only   && !$only{$plugin} );
+    return 0 unless (!defined $only || $plugin =~ m!$only! );
 
-    return 0 if     (keys %except &&  $except{$plugin}   );
+    return 0 if     (keys %except &&  $except{$plugin} );
     return 0 if     (defined $except &&  $plugin =~ m!$except! );
 
     return 0 if     defined $self->{max_depth} && $depth>$self->{max_depth};
@@ -191,6 +313,15 @@ sub _is_legit {
 
     return 1;
 }
+
+=head2 search_directories(@dirs)
+
+    my @plugins = $finder->search_directories(@INC);
+
+Iterates over C<@dirs> and delegates to L</search_paths> for each one.
+Normally called internally by L</plugins>, but exposed so subclasses can
+override the top-level directory loop.
+=cut
 
 sub search_directories {
     my $self      = shift;
@@ -204,6 +335,18 @@ sub search_directories {
     return @plugins;
 }
 
+=head2 search_paths($dir)
+
+    my @plugins = $finder->search_paths($dir);
+
+For a single base directory, iterates over C</search_path> namespaces, locates
+C<.pm> files under the corresponding subdirectory, converts file paths to
+package names, and calls L</handle_finding_plugin> for each candidate.
+
+Handles case-insensitive filesystems by reading the C<package> declaration
+out of the file when the file name is all-lower or all-upper case.
+
+=cut
 
 sub search_paths {
     my $self = shift;
@@ -303,6 +446,20 @@ sub _is_editor_junk {
     return 0;
 }
 
+=head2 handle_finding_plugin($plugin, \@plugins, $no_require)
+
+    $finder->handle_finding_plugin('MyApp::Plugin::Foo', \@plugins);
+
+Called for each candidate package name discovered during the search. Applies
+the C<only>/C<except>/C<min_depth>/C<max_depth> filters, invokes
+C<before_require> and C<after_require> triggers, optionally C<require>s the
+module, and pushes it onto C<\@plugins> if everything succeeds.
+
+Pass a true value for C<$no_require> to skip the C<require> step (used when
+the module is known to already be loaded, e.g. for inner packages).
+
+=cut
+
 sub handle_finding_plugin {
     my $self    = shift;
     my $plugin  = shift;
@@ -333,6 +490,15 @@ sub handle_finding_plugin {
     push @$plugins, $plugin;
 }
 
+=head2 find_files($search_path)
+
+    my @files = $finder->find_files($dir);
+
+Recursively finds all files matching C<file_regex> (default C<qr/\.pm$/>) under
+C<$dir> using L<File::Find>. Respects the C<follow_symlinks> option.
+
+=cut
+
 sub find_files {
     my $self         = shift;
     my $search_path  = shift;
@@ -360,6 +526,17 @@ sub find_files {
 
 }
 
+=head2 handle_inc_hooks($search_path, @dirs)
+
+    my @plugins = $finder->handle_inc_hooks($path, @SEARCHDIR);
+
+Handles the case where an entry in C<@INC> is a blessed object with a
+C<files()> method (as used by L<App::FatPacker> and L<PAR>). Calls
+C<files()> on each such object, filters by C<$search_path>, and delegates
+to L</handle_finding_plugin>.
+
+=cut
+
 sub handle_inc_hooks {
     my $self      = shift;
     my $path      = shift;
@@ -379,6 +556,17 @@ sub handle_inc_hooks {
     return @plugins;
 }
 
+=head2 handle_innerpackages($search_path)
+
+    my @plugins = $finder->handle_innerpackages('MyApp::Plugin');
+
+Uses L<Devel::InnerPackage> to find any package declared inside an already-
+loaded file whose name falls under C<$search_path>. This is how
+C<Something::Plugin::Bar> is discovered when it is defined inside
+F<Something/Plugin/Foo.pm>. Set C<< inner => 0 >> to disable this behaviour.
+
+=cut
+
 sub handle_innerpackages {
     my $self = shift;
     return () if (exists $self->{inner} && !$self->{inner});
@@ -395,41 +583,232 @@ sub handle_innerpackages {
 
 1;
 
-=pod
-
-=head1 NAME
-
-Module::Pluggable::Object - automatically give your module the ability to have plugins
-
-=head1 SYNOPSIS
-
-
-Simple use Module::Pluggable -
-
-    package MyClass;
-    use Module::Pluggable::Object;
-
-    my $finder = Module::Pluggable::Object->new(%opts);
-    print "My plugins are: ".join(", ", $finder->plugins)."\n";
-
-=head1 DESCRIPTION
-
-Provides a simple but, hopefully, extensible way of having 'plugins' for
-your module. Obviously this isn't going to be the be all and end all of
-solutions but it works for me.
-
-Essentially all it does is export a method into your namespace that
-looks through a search path for .pm files and turn those into class names.
-
-Optionally it instantiates those classes for you.
-
-This object is wrapped by C<Module::Pluggable>. If you want to do something
-odd or add non-general special features you're probably best to wrap this
-and produce your own subclass.
-
 =head1 OPTIONS
 
-See the C<Module::Pluggable> docs.
+All options are passed to C<new> as a flat hash and may be set or overridden
+directly on the object before calling C<plugins>.
+
+=head2 package
+
+The package name used to build the default C<search_path>. When using
+L<Module::Pluggable> this is set automatically to the calling package. When
+using C<Module::Pluggable::Object> directly you should set it explicitly.
+
+=head2 search_path
+
+An array ref (or a single string, which is promoted to an array ref) of
+namespace prefixes to search. Defaults to C<["${package}::Plugin"]>.
+
+    search_path => ['MyApp::Plugin', 'MyApp::Extension']
+
+Alternatively, you can pass a hash ref where each key is a namespace prefix and
+each value is a hash ref of option overrides for that path. The per-path
+options are merged on top of the global options, so you only need to
+specify what differs.
+
+    search_path => {
+        'MyApp::Plugin'    => { max_depth => 2 },
+        'MyApp::Extension' => { max_depth => 3, instantiate => 'new' },
+    }
+
+As another alternative, if you want plugins to be in a particular order, use
+an array ref of mixed plain strings and single-key hash refs. Order is
+preserved; only the hash ref entries carry per-path option overrides.
+
+    search_path => [
+        'MyApp::Plugin',
+        { 'MyApp::Extension' => { max_depth => 3, instantiate => 'new' } },
+    ]
+
+Results from all paths are combined and returned in a single list. Class
+names are deduplicated across paths; if any path uses C<instantiate> its
+objects are included as-is alongside any class names from other paths.
+
+=head2 search_dirs
+
+An array ref (or a single string) of filesystem directories to search
+I<before> C<@INC>. Use this when plugins live outside the normal include
+path.
+
+    search_dirs => ['/opt/myapp/plugins']
+
+=head2 search_dirs_strict
+
+When true, only the directories in C<search_dirs> are searched; C<@INC> is
+ignored entirely. Requires C<search_dirs> to also be set.
+
+    search_dirs_strict => 1
+
+=head2 instantiate
+
+Name of the method to call on each plugin class to create an instance.
+Typically C<'new'>. When set, C<plugins()> returns a list of objects instead
+of class names. Arguments passed to C<plugins()> are forwarded to this method.
+
+    instantiate => 'new'
+
+=head2 require
+
+When true, each plugin module is C<require>d but not instantiated. Overrides
+C<instantiate>. Also enables inner-package discovery (see L</inner>).
+
+    require => 1
+
+=head2 inner
+
+Controls whether inner packages (secondary C<package> declarations inside a
+single F<.pm> file) are discovered.
+
+=over 4
+
+=item * Defaults to true when C<require> or C<instantiate> is set.
+
+=item * Set to C<0> to disable even when C<require> is set.
+
+=back
+
+    inner => 0
+
+=head2 only
+
+Restricts the returned plugins to those matching this value. May be:
+
+=over 4
+
+=item * A string - only the exact named plugin is returned.
+
+=item * An array ref of strings - only those exact plugins are returned.
+
+=item * A compiled regex - only plugins whose name matches are returned.
+
+=back
+
+    only => qr/^MyApp::Plugin::Safe/
+
+=head2 except
+
+Excludes matching plugins from the results. Accepts the same forms as C<only>.
+
+    except => ['MyApp::Plugin::Broken', 'MyApp::Plugin::Deprecated']
+
+=head2 min_depth / max_depth
+
+Restrict discovery to plugins at a certain namespace depth (number of
+C<::>-separated components).
+
+For example, C<MyApp::Plugin::Foo> has depth 3 and
+C<MyApp::Plugin::Foo::Bar> has depth 4.
+
+    max_depth => 3   # only MyApp::Plugin::Foo, not MyApp::Plugin::Foo::Bar
+    min_depth => 4   # only MyApp::Plugin::Foo::Bar and deeper
+
+=head2 file_regex
+
+A compiled regex used to identify plugin files. Defaults to C<qr/\.pm$/>.
+
+    file_regex => qr/\.plugin$/
+
+=head2 follow_symlinks
+
+Whether to follow symbolic links when walking the filesystem. Defaults to
+C<1> (follow symlinks) on all platforms except Windows with
+L<File::Find> E<ge> 1.39, where it defaults to C<0> to preserve the
+historical behaviour.
+
+    follow_symlinks => 0
+
+=head2 include_editor_junk
+
+By default, files that look like editor artefacts are silently skipped:
+
+=over 4
+
+=item * Files ending in C<~> (Emacs / generic backup files).
+
+=item * Files beginning with C<.#> (Emacs lock files).
+
+=item * Files matching C<^[._].*\.s[a-w][a-z]$> (Vim swap files).
+
+=back
+
+Set C<include_editor_junk> to a true value to disable this filtering and
+include every file that matches C<file_regex>.
+
+    include_editor_junk => 1
+
+=head2 force_search_all_paths
+
+By default, when the module is loaded from inside a C<blib/> tree (i.e.
+during C<make test>), only C<@INC> entries that themselves contain C<blib>
+are searched. Set this option to search all of C<@INC> regardless.
+
+    force_search_all_paths => 1
+
+=head1 TRIGGERS
+
+Triggers are callbacks passed as options to C<new>. If a trigger returns
+C<0> (or any false value), the plugin is dropped at that point in the
+pipeline.
+
+=head2 before_require
+
+    before_require => sub { my ($plugin) = @_; ... }
+
+Called with the plugin package name before it is C<require>d. Return C<0> to
+skip both the C<require> and all subsequent steps for this plugin.
+
+=head2 on_require_error
+
+    on_require_error => sub { my ($plugin, $err) = @_; ... }
+
+Called when C<require> raises an exception. The default handler C<carp>s the
+error and returns C<0> (dropping the plugin). Return a true value to keep the
+plugin in the list despite the error.
+
+=head2 after_require
+
+    after_require => sub { my ($plugin) = @_; ... }
+
+Called after a successful C<require>. Return C<0> to exclude the plugin from
+results even though it has already been loaded.
+
+=head2 before_instantiate
+
+    before_instantiate => sub { my ($plugin) = @_; ... }
+
+Called with the plugin package name before the C<instantiate> method is
+invoked. Return C<0> to skip instantiation for this plugin.
+
+=head2 on_instantiate_error
+
+    on_instantiate_error => sub { my ($plugin, $err) = @_; ... }
+
+Called when the C<instantiate> method raises an exception. The default handler
+C<carp>s the error and returns C<0>.
+
+=head2 after_instantiate
+
+    after_instantiate => sub { my ($plugin, $obj) = @_; return $obj }
+
+Called after successful instantiation with the plugin name and the newly
+created object. The return value is used as the plugin entry in the results
+list; return a false value to discard the plugin entirely. Use this to wrap
+or decorate plugin objects transparently.
+
+=head1 BEHAVIOUR UNDER TEST ENVIRONMENTS
+
+When C<blib.pm> is present in C<%INC> and the calling file's path contains
+C<blib/>, only C<@INC> entries that themselves contain C<blib> are searched.
+This prevents installed (non-blib) versions of plugins from interfering with
+tests. See C<force_search_all_paths> to override this.
+
+=head1 @INC HOOKS AND App::FatPacker
+
+If an entry in C<@INC> is a blessed object with a C<files()> method, its
+C<files()> list is searched for plugin modules. This is how L<App::FatPacker>
+(from version 0.10.0 onwards) integrates with C<Module::Pluggable::Object>,
+and how L<PAR> can be made to do the same. See F<t/26inc_hook.t> for a
+working example.
 
 =head1 AUTHOR
 
@@ -437,17 +816,14 @@ Simon Wistow <simon@thegestalt.org>
 
 =head1 COPYING
 
-Copyright, 2006 Simon Wistow
+Copyright, 2006-2026 Simon Wistow
 
 Distributed under the same terms as Perl itself.
 
-=head1 BUGS
-
-None known.
-
 =head1 SEE ALSO
 
-L<Module::Pluggable>
+L<Module::Pluggable>, L<Devel::InnerPackage>,
+L<Module::Runtime>, L<App::FatPacker>, L<PAR>
 
 =cut
 
