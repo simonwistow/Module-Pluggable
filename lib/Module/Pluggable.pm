@@ -383,6 +383,24 @@ and to only get the latter (i.e C<MyClass::Plugin::Foo::Bar>)
         package MyClass;
         use Module::Pluggable min_depth => 4;
 
+=head2 sort_results
+
+Controls the order plugin names (or objects) are returned in. One of:
+
+=over 4
+
+=item * C<'alpha'> (the default) - sorted alphabetically by package name.
+
+=item * C<'path'> - returned in search-path discovery order: all plugins
+under the first C<search_path> entry, then the second, and so on.
+
+=item * C<0> - no sort is applied at all. Fastest option, for callers that
+will sort or otherwise order the results themselves.
+
+=back
+
+        package MyClass;
+        use Module::Pluggable sort_results => 'path';
 
 =head1 TRIGGERS
 

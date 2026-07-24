@@ -224,19 +224,24 @@ sub plugins {
     # return blank unless we've found anything
     return () unless @plugins;
 
-    # remove duplicates
-    # probably not necessary but hey ho
-    my %plugins;
+    # remove duplicates, keeping track of discovery order for 'sort_results'
+    my (@dedupe, %plugins);
     for(@plugins) {
         next unless $self->_is_legit($_);
-        $plugins{$_} = 1;
+        next if $plugins{$_}++;
+        push @dedupe, $_;
     }
+
+    my $sort_results = exists $self->{'sort_results'} ? $self->{'sort_results'} : 'alpha';
+    my @ordered = $sort_results eq 'path' ? @dedupe
+                : !$sort_results          ? keys %plugins
+                :                           sort keys %plugins;
 
     # are we instantiating or requiring?
     if (defined $self->{'instantiate'}) {
         my $method = $self->{'instantiate'};
         my @objs   = ();
-        foreach my $package (sort keys %plugins) {
+        foreach my $package (@ordered) {
             next unless $package->can($method);
             $self->{'before_instantiate'}->($package)
                 or next;
@@ -251,7 +256,7 @@ sub plugins {
         return @objs;
     } else {
         # no? just return the names
-        my @objs = sort keys %plugins;
+        my @objs = @ordered;
         return @objs;
     }
 }
@@ -743,6 +748,25 @@ during C<make test>), only C<@INC> entries that themselves contain C<blib>
 are searched. Set this option to search all of C<@INC> regardless.
 
     force_search_all_paths => 1
+
+=head2 sort_results
+
+Controls the order plugin names (or objects) are returned in. One of:
+
+=over 4
+
+=item * C<'alpha'> (the default) - sorted alphabetically by package name.
+
+=item * C<'path'> - returned in search-path discovery order: all plugins
+under the first C<search_path> entry, then the second, and so on. Within a
+single path, order follows the underlying filesystem traversal.
+
+=item * C<0> - no sort is applied at all. Fastest option, for callers that
+will sort or otherwise order the results themselves.
+
+=back
+
+    sort_results => 'path'
 
 =head1 TRIGGERS
 
