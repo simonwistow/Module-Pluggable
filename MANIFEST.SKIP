@@ -13,3 +13,6 @@ t/lib/EditorJunk/Plugin/.#Bar.pm
 
 ^MYMETA\.yml$
 ^MYMETA\.json$
+
+# macOS extended-attribute sidecar files
+(^|/)\._
