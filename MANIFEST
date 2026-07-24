@@ -9,6 +9,7 @@ MANIFEST.SKIP
 META.json
 META.yml
 README
+installscripts/remove_stale_core_copies.pl
 t/01use.t
 t/02alsoworks.t
 t/02works.t
