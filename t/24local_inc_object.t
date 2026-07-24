@@ -4,15 +4,8 @@ use strict;
 use FindBin;
 use Test::More tests => 5;
 
-eval { require 'Text::BibTex' };
-my $bibtex = !$@;
-
-SKIP: {
-
-skip "This test fails when Text::BibTex is installed", 2 if $bibtex;
-
 my $inc  = IncTest->new();
-my ($ta) = grep { ref($_) eq 'Text::Abbrev'} eval { local ($^W) = 0; $inc->plugins };
+my ($ta) = grep { ref($_) eq 'LocalIncTest::Plugin::Abbrev'} eval { local ($^W) = 0; $inc->plugins };
 ok($ta);
 is($ta->MPCHECK, "HELLO");
 
@@ -25,13 +18,11 @@ my $norefs = scalar grep { ref($_) } values %after;
 my $total = scalar values %after;
 ok($total == $norefs, 'after_instantiate has all refs');
 
-};
-
 package IncTest;
 our @BEFORE;
 our %AFTER;
 
-use Module::Pluggable search_path => "Text",
+use Module::Pluggable search_path => "LocalIncTest::Plugin",
                       search_dirs => "t/lib",
                       instantiate => 'module_pluggable',
                       before_instantiate => sub { push @BEFORE, $_[0]; return 1 },

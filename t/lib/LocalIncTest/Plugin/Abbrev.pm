@@ -1,4 +1,4 @@
-package Text::Abbrev;
+package LocalIncTest::Plugin::Abbrev;
 use strict;
 
 sub module_pluggable {

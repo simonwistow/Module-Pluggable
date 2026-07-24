@@ -72,6 +72,7 @@ t/lib/ExtTest/Plugin/Bar.plugin
 t/lib/ExtTest/Plugin/Foo.plugin
 t/lib/ExtTest/Plugin/Quux/Foo.plugin
 t/lib/InnerTest/Plugin/Foo.pm
+t/lib/LocalIncTest/Plugin/Abbrev.pm
 t/lib/M/X.pm
 t/lib/MyOtherTest/Plugin/Bar.pm
 t/lib/MyOtherTest/Plugin/Foo.pm
@@ -84,7 +85,6 @@ t/lib/MyTest/Plugin/Quux/Foo.pm
 t/lib/No/Middle.pm
 t/lib/OddTest/Plugin/Foo.pm
 t/lib/TA/C/A/I.pm
-t/lib/Text/Abbrev.pm
 t/lib/TriggerTest/Plugin/After.pm
 t/lib/TriggerTest/Plugin/CallbackAllow.pm
 t/lib/TriggerTest/Plugin/CallbackDeny.pm
