@@ -61,6 +61,7 @@ my %WriteMakefileArgs = (
         'File::Spec::Functions' => '0',
         'File::Temp'            => '0',
         'base'                  => '0',
+        'parent'                => '0',
         'FindBin'               => '0',
         'strict'                => '0',
         'warnings'              => '0',

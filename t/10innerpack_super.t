@@ -18,7 +18,7 @@ package Foo::Bar;
 sub whee {}
 
 package Bar;
-use base 'Foo';
+use parent -norequire => 'Foo';
 
 sub whee {
     shift->SUPER::whee;
