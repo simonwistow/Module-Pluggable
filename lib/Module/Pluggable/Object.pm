@@ -10,7 +10,7 @@ use Scalar::Util qw( blessed );
 
 use if $] > 5.017, 'deprecate';
 
-our $VERSION = '5.2';
+our $VERSION = '5.3';
 
 BEGIN {
     eval {  require Module::Runtime };

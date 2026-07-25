@@ -1,3 +1,14 @@
+2026-07-25 - 6.4
+    Add a CI/CD pipeline for the first time in 26 years
+    Add the ability to make search search "strict" and only walk the given search_dirs (thanks @rjbs)
+    Add much more documentation to Module::Pluggable::Object (thanks Dave Rolsky)
+    Make it so that you can give each search_path its own custom options
+    Finally fix spurious test failure because of already installed modules I hope (thanks @SZREZIC, Andreas Koenig and @ZEFRAM)
+    Remove optional_features from Makefile.PL META_MERGE which caused installation confusion sometimes 
+    Add the ability to have different sorting algorithms (thanks @CHOHAG)
+    Fix the issues with OSX extended-attributes on files (thanks pgoyette99)
+    Clean up old stale core-lib (thanks @dolmen and @haarg)
+
 2025-01-10 - 6.3
     Fix make_path() in t/29unreadable.t. (thanks to Michal Josef Špaček @michal-josef-spacek)
     Fix t/29unreadable.t tests failing as root. (thanks to Michal Josef Špaček @michal-josef-spacek)
