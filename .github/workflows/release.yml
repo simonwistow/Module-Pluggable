@@ -22,7 +22,7 @@ jobs:
 
       - name: Install developer Dependencies
         run: |
-          cpanm ExtUtils::MakeMaker File::ShareDir::Install Test::CPAN::Meta::JSON Test::CPAN::Meta Test::Pod    
+          cpanm ExtUtils::MakeMaker CPAN::Meta File::ShareDir::Install Test::CPAN::Meta::JSON Test::CPAN::Meta Test::Pod
 
       - name: Install CPAN::Uploader
         run: cpanm --notest CPAN::Uploader
